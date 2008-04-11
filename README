@@ -1,0 +1,115 @@
+Overview
+========
+
+To use the nagios2 resources, activate storeconfigs on the puppetmaster.
+
+Monitor
+-------
+
+On one node the "nagios2" class has to be included. This installes nagios2 and
+apache2 and configures the cgi on http://node/nagios2/
+
+
+Hosts
+-----
+
+On a node which shall be monitored with nagios, include the "nagios2::target".
+This just creates a host declaration for this hosts "$fqdn".
+Set the $nagios_parent variable in the node scope for enabling the reachability
+features of nagios2. If a node needs more customisation, use the
+"nagios2::host" component directly.
+
+To monitor hosts not managed by puppet, add "nagios2::extra_host"s to the
+monitoring node. These can be used as intermediate $nagios_parent's
+
+
+Services
+--------
+
+Services can be monitored by using the "nagios2::service" component.
+
+The simplest form is::
+
+	nagios2::service { check_dns: }
+
+The intention being obviously to put such declarations into a component defining
+a service, thereby being automatically applied together with all instances of
+the service.
+
+
+
+Caveats
+=======
+
+
+Performance
+-----------
+
+A major drawback is that currently the needed storeconfig setting and
+subsequent filling of the database is really a drag on performance. 0.22.1
+for example breaks at approximatly 120 monitored services (depends on H/W of
+course). 0.22.3 has improved that my a factor of 3-4. 
+
+
+Consistency/Validation/Verification
+-----------------------------------
+
+After convergance of the configuration, the system is obviously consistent.
+That is, all defined services are monitored. The problem is though, that it is
+neither automatically valid - it is not guaranteed that all components declare a
+nagios2::service - and even if the configuration is valid it definitly is
+unverified, since that is always a judgment call for an external observer.
+
+
+
+Examples
+========
+
+Usage example::
+
+node nagios {
+
+	include nagios2
+
+	# Declare another nagios command
+	nagios2::command { http_port: command_line
+=> '/usr/lib/nagios/plugins/check_http -p $ARG1$ -H $HOSTADDRESS$ -I
+$HOSTADDRESS$'
+
+	# Declare unmanaged hosts
+	nagios_extra_host {
+        	"router01":
+                	parent => "gateway",
+                	ip => "10.0.0.1";
+        	"router02":
+                	parent => "router01",
+                	ip => "192.168.0.1";
+	}
+
+}
+
+
+node target {
+
+	# Monitor this host
+	$nagios_parent = "router01"
+	include nagios_target
+
+	# monitor a service
+	$apache2_port = 8080
+	include apache2
+
+	# This actually does this somewhere:
+	#nagios2::service { "http_${apache2_port}":
+	#       check_command => "http_port!${apache2_port}"
+	#}
+
+}
+
+
+License
+=======
+
+Copyright (C) 2007 David Schmitt <david@schmitt.edv-bus.at>
+See the file LICENSE in the top directory for the full license.
+
