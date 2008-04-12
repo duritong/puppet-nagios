@@ -162,7 +162,7 @@ class nagios::base {
     
 	define host($ip = $fqdn, $short_alias = $fqdn) {
 		@@file {
-			"$nagios_cfgdir/${name}_host.cfg":
+			"$nagios_cfgdir/hosts.d/${name}_host.cfg":
 				ensure => present, content => template( "nagios/host.erb" ),
 				mode => 644, owner => root, group => root,
 				tag => 'nagios'
@@ -184,7 +184,7 @@ class nagios::base {
 			default => $nagios2_description
 		}
 		@@file {
-			"$nagios_cfgdir/${nagios2_host_name}_${name}_service.cfg":
+			"$nagios_cfgdir/hosts.d/${nagios2_host_name}_${name}_service.cfg":
 				ensure => present, content => template( "nagios/service.erb" ),
 				mode => 644, owner => root, group => root,
 				tag => 'nagios'
@@ -194,13 +194,31 @@ class nagios::base {
 	define extra_host($ip = $fqdn, $short_alias = $fqdn, $parent = "none") {
 		$nagios_parent = $parent
 		file {
-			"$nagios_cfgdir/${name}_host.cfg":
+			"$nagios_cfgdir/hosts.d/${name}_host.cfg":
 				ensure => present, content => template( "nagios/host.erb" ),
 				mode => 644, owner => root, group => root,
 				notify => Service[nagios2],
 		}
 	}
-	#
+
+    # additional hosts
+    
+    file {
+        "$etc_nagios_path/hosts.cfg":
+            source => [
+                "puppet://$servername/files/nagios/hosts.cfg",
+                "puppet://$servername/nagios/hosts.cfg"
+            ],
+            mode => 0644, owner => nagios, group => nagios;
+    }
+
+    # nagios cfg includes $nagios_cfgdir/hosts.d
+    file {
+        "$etc_nagios_path/nagios.cfg":
+			ensure => present, content => template( "nagios/nagioscfg.erb" ),
+            mode => 0644, owner => nagios, group => nagios;
+    }
+
 	# include this class in every host that should be monitored by nagios
 	class target {
 		nagios2::host { $fqdn: }
