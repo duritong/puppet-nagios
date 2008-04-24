@@ -124,8 +124,8 @@ class nagios::base {
     file {
 		"$etc_nagios_path/htpasswd.users":
             source => [
-                "puppet://$servername/files/nagios/htpasswd.users",
-                "puppet://$servername/nagios/htpasswd.users"
+                "puppet://$server/files/nagios/htpasswd.users",
+                "puppet://$server/nagios/htpasswd.users"
             ],
             mode => 0640, owner => root, group => apache;
     }
@@ -206,8 +206,8 @@ class nagios::base {
     file {
         "$etc_nagios_path/hosts.cfg":
             source => [
-                "puppet://$servername/files/nagios/hosts.cfg",
-                "puppet://$servername/nagios/hosts.cfg"
+                "puppet://$server/files/nagios/hosts.cfg",
+                "puppet://$server/nagios/hosts.cfg"
             ],
             mode => 0644, owner => nagios, group => nagios;
     }
@@ -232,7 +232,7 @@ class nagios::base {
 #
 #	file {
 #		"/etc/nagios2/conf.d/hostgroups_nagios2.cfg":
-#			source => "puppet://$servername/nagios/hostgroups_nagios2.cfg",
+#			source => "puppet://$server/nagios/hostgroups_nagios2.cfg",
 #			mode => 0644, owner => root, group => www-data,
 #			notify => Service[nagios2];
 #	}
