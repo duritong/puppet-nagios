@@ -42,8 +42,7 @@ class nagios::base {
         notify => Service[nagios],
         mode => 0755, owner => root, group => root;
     }
-    # this file should contain _only_ the nagios_puppet_template-path:
-    # cfg_file=/etc/nagios/puppet_cfgpaths.cfg
+    # this file should contain all the nagios_puppet-paths:
     file {nagios_main_cfg: 
             path => "/etc/nagios/nagios.cfg",
 			source => [ "puppet://$server/files/nagios/configs/${fqdn}/nagios.cfg",
@@ -54,16 +53,6 @@ class nagios::base {
             notify => Service[nagios],
             mode => 0644, owner => root, group => root;
     }    
-    # here is this magic file containing all relevant paths
-    file {nagios_puppet_cfg_paths:
-        path => "/etc/nagios/puppet_cfgpaths.cfg",
-        source => [ "puppet://$server/files/nagios/configs/${fqdn}/puppet_cfgpaths.cfg",
-                    "puppet://$server/files/nagios/configs/puppet_cfgpaths.cfg",
-                    "puppet://$server/nagios/configs/${operatingsystem}/puppet_cfgpaths.cfg",
-                    "puppet://$server/nagios/configs/puppet_cfgpaths.cfg" ],
-        notify => Service[nagios],
-        mode => 0644, owner => root, group => root;
-    }
     file { nagios_cgi_cfg:
         path => "/etc/nagios/cgi.cfg",
         source => [ "puppet://$server/files/nagios/configs/${fqdn}/cgi.cfg",
