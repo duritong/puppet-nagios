@@ -288,9 +288,10 @@ define nagios::service::ping($host_name = $hostname ){
         host_name => $host_name,
     }
 }
-define nagios::service::ntp($host_name = $hostname ){
+
+class nagios::service::ntp {
     nagios::service{ "check_ntp_${hostname}":
         check_command => "check_ntp",
-        host_name => $host_name,
+        host_name => $fqdn,
     }
 }
