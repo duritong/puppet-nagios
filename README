@@ -20,7 +20,6 @@ Monitor
 On one node the "nagios" class has to be included. This installes nagios and
 apache2 and installs the cgi 
 
-
 Hosts
 -----
 
@@ -47,8 +46,6 @@ The intention being obviously to put such declarations into a component defining
 a service, thereby being automatically applied together with all instances of
 the service.
 
-
-
 Caveats
 =======
 
@@ -70,8 +67,6 @@ That is, all defined services are monitored. The problem is though, that it is
 neither automatically valid - it is not guaranteed that all components declare a
 nagios::service - and even if the configuration is valid it definitly is
 unverified, since that is always a judgment call for an external observer.
-
-
 
 Examples
 ========

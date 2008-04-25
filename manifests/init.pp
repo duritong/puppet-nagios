@@ -127,7 +127,7 @@ class nagios::base {
     # old way of commands to not break the current config
     # TODO: integrate these commands into native nagios types
     file{ "$etc_nagios_path/legacy":
-        source => "puppet://$server/files/nagios/legacy"
+        source => "puppet://$server/files/nagios/legacy",
         ensure => directory,
         recurse => true,
         purge => true,
@@ -158,7 +158,7 @@ class nagios::base {
     Nagios_serviceextinfo <<||>>
     Nagios_timeperiod <<||>>
 
-    if defined(Class["munin::client"] {
+    if defined(Class["munin::client"]) {
         include munin::plugins::nagios
     }
 } # end nagios::base
@@ -212,14 +212,14 @@ class nagios::target::host {
 # defines
 define nagios::host(
     $ip = $fqdn, 
-    $alias = $hostname, 
+    $nagios_alias = $hostname, 
     $use = 'generic-host', 
     $parents = 'none' ) 
 {
     @@nagios_host { $name:
         ensure => present,
-        alias => $alias,
-        address => $ip.
+        alias => $nagios_alias,
+        address => $ip,
         use => $use,
     }
     case $parents {
@@ -237,12 +237,12 @@ define nagios::host(
 # please note:
 # - you can use it only on the nagios master (no exported resources)
 # - you can not use this host for any other services!
-define nagios::extra_host($ip, $alias, $host_use = 'generic-host', $parents = 'none' ) {
+define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $parents = 'none' ) {
     nagios::host{$name:
         ip => $ip, 
-        alias = $alias, 
-        $use = $use, 
-        parents = $parents 
+        nagios_alias => $nagios_alias, 
+        use => $use, 
+        parents => $parents 
     }
     nagios_service { "check_ping_${name}":
         check_command => "check_ping!100.0,20%!500.0,60%",
@@ -257,7 +257,7 @@ define nagios::service(
     $check_command, 
 	$host_name = $fqdn, 
     $use = 'generic-service',
-    notification_period = "24x7",
+    $notification_period = "24x7",
     $service_description = ''){
 
 
