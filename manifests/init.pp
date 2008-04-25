@@ -18,8 +18,6 @@ class nagios {
 
 class nagios::base {
 
-    include nagios::vars
-
     # needs apache to work
     include apache
 
