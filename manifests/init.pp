@@ -58,10 +58,9 @@ class nagios::base {
     file {nagios_puppet_cfg_paths:
         path => "/etc/nagios/puppet_cfgpaths.cfg",
         source => [ "puppet://$server/files/nagios/configs/${fqdn}/puppet_cfgpaths.cfg",
-                    "puppet://$server/files/nagios/configs/${operatingsystem}/puppet_cfgpaths.cfg",
                     "puppet://$server/files/nagios/configs/puppet_cfgpaths.cfg",
                     "puppet://$server/nagios/configs/${operatingsystem}/puppet_cfgpaths.cfg",
-                    "puppet://$server/nagios/configs/puppet_cfgpaths.cfg",
+                    "puppet://$server/nagios/configs/puppet_cfgpaths.cfg" ],
         notify => Service[nagios],
         mode => 0644, owner => root, group => root;
     }
@@ -81,8 +80,7 @@ class nagios::base {
 	file {"/etc/nagios/htpasswd.users":
             source => [
                 "puppet://$server/files/nagios/htpasswd.users",
-                "puppet://$server/nagios/htpasswd.users"
-            ],
+                "puppet://$server/nagios/htpasswd.users" ],
             mode => 0640, owner => root, group => apache;
     }
 
@@ -156,7 +154,9 @@ class nagios::centos inherits nagios::base {
     # don't forget it to add to the puppet paths
     file { nagios_commands_cfg:
         path => "/etc/nagios/commands.cfg",
-        source => "puppet://$server/nagios/configs/${operatingsystem}/commands.cfg",
+        source => [ "puppet://$server/files/nagios/configs/${fqdn}/commands.cfg",
+                    "puppet://$server/files/nagios/configs/${operatingsystem}/commands.cfg",
+                    "puppet://$server/nagios/configs/${operatingsystem}/commands.cfg" ],
         owner => 'root',
         group => 0,
         mode => '0644',
