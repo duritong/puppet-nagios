@@ -193,7 +193,7 @@ define nagios::host(
     $ip = $fqdn, 
     $nagios_alias = $hostname, 
     $max_check_attempts = 4,
-    $notification_interval => 120,
+    $notification_interval = 120,
     $use = 'generic-host', 
     $nagios_contact_groups_in = $nagios_contact_groups,
     $parents = 'localhost' ) 
