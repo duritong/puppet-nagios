@@ -12,7 +12,7 @@ modules_dir{ nagios: }
 class nagios {
     case $operatingsystem {
         centos: { include nagios::centos }
-        default: { include nagios::base }
+        default: { fail("No such operatingsystem: $operatingsystem yet defined") }
     }
 }
 
