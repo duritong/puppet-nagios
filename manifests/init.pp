@@ -48,7 +48,7 @@ class nagios::base {
 
     # manage nagios cfg files
     file {nagios_cfg_dir:
-        path => "$etc_nagios_path",
+        path => "${etc_nagios_path}/",
         source => "puppet://$server/nagios/empty",
         ensure => directory,
         recurse => true,
