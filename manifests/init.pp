@@ -46,9 +46,10 @@ class nagios::base {
     # cfg_file=/etc/nagios/puppet_cfgpaths.cfg
     file {nagios_main_cfg: 
             path => "/etc/nagios/nagios.cfg",
-			source => [ "puppet://$server/files/nagios/${fqdn}/nagios.cfg",
-                        "puppet://$server/files/nagios/nagios.cfg",
-                        "puppet://$server/nagios/configs/nagios.cfg.${operatingsystem}",
+			source => [ "puppet://$server/files/nagios/configs/${fqdn}/nagios.cfg",
+                        "puppet://$server/files/nagios/configs/${operatingsystem}/nagios.cfg",
+                        "puppet://$server/files/nagios/configs/nagios.cfg",
+                        "puppet://$server/nagios/configs/${operatingsystem}/nagios.cfg",
                         "puppet://$server/nagios/configs/nagios.cfg" ],
             notify => Service[nagios],
             mode => 0644, owner => root, group => root;
@@ -56,18 +57,20 @@ class nagios::base {
     # here is this magic file containing all relevant paths
     file {nagios_puppet_cfg_paths:
         path => "/etc/nagios/puppet_cfgpaths.cfg",
-        source => [ "puppet://$server/files/nagios/${fqdn}/puppet_cfgpaths.cfg",
-                    "puppet://$server/files/nagios/puppet_cfgpaths.cfg",
-                    "puppet://$server/nagios/configs/puppet_cfgpaths.cfg.${operatingsystem}",
-                    "puppet://$server/nagios/configs/puppet_cfgpaths.cfg" ],
+        source => [ "puppet://$server/files/nagios/configs/${fqdn}/puppet_cfgpaths.cfg",
+                    "puppet://$server/files/nagios/configs/${operatingsystem}/puppet_cfgpaths.cfg",
+                    "puppet://$server/files/nagios/configs/puppet_cfgpaths.cfg",
+                    "puppet://$server/nagios/configs/${operatingsystem}/puppet_cfgpaths.cfg",
+                    "puppet://$server/nagios/configs/puppet_cfgpaths.cfg",
         notify => Service[nagios],
         mode => 0644, owner => root, group => root;
     }
     file { nagios_cgi_cfg:
         path => "/etc/nagios/cgi.cfg",
-        source => [ "puppet://$server/files/nagios/${fqdn}/cgi.cfg",
-                    "puppet://$server/files/nagios/cgi.cfg",
-                    "puppet://$server/nagios/configs/cgi.cfg.${operatingsystem}",
+        source => [ "puppet://$server/files/nagios/configs/${fqdn}/cgi.cfg",
+                    "puppet://$server/files/nagios/configs/${operatingsystem}/cgi.cfg",
+                    "puppet://$server/files/nagios/configs/cgi.cfg",
+                    "puppet://$server/nagios/configs/${operatingsystem}/cgi.cfg",
                     "puppet://$server/nagios/configs/cgi.cfg" ],
         owner => 'root',
         group => 0,
@@ -153,7 +156,7 @@ class nagios::centos inherits nagios::base {
     # don't forget it to add to the puppet paths
     file { nagios_commands_cfg:
         path => "/etc/nagios/commands.cfg",
-        source => "puppet://$server/nagios/configs/commands.cfg.${operatingsystem}" ,
+        source => "puppet://$server/nagios/configs/${operatingsystem}/commands.cfg",
         owner => 'root',
         group => 0,
         mode => '0644',
@@ -167,7 +170,7 @@ class nagios::centos inherits nagios::base {
         mode => '0750', owner => root, group => nagios;
     }
     file{"/etc/nagios/private/resource.cfg":
-        source => "puppet://$server/nagios/configs/private/resource.cfg.${operatingsystem}.${architecture}",
+        source => "puppet://$server/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
         owner => root, group => nagios, mode => '0640';
     }
 }
