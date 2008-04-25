@@ -88,7 +88,7 @@ class nagios::base {
         ensure => file,
         replace => false,
         notify => Service[nagios],
-        mode => 0644, owner => root, group => root;
+        mode => 0644, owner => root, group => 0;
     }
 
     # old way of commands to not break the current config
@@ -213,6 +213,7 @@ define nagios::host(
         max_check_attempts => $max_check_attempts,
         notification_interval => $notification_interval,
         parents => $real_nagios_parents,
+        contact_groups => $real_nagios_contact_groups,
         use => $use,
     }
 }
@@ -222,7 +223,7 @@ define nagios::host(
 # please note:
 # - you can use it only on the nagios master (no exported resources)
 # - you can not use this host for any other services!
-define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $parents = 'none' ) {
+define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $parents = 'localhost' ) {
     nagios::host{$name:
         ip => $ip, 
         nagios_alias => $nagios_alias, 
