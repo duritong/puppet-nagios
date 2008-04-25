@@ -181,11 +181,7 @@ class nagios::target {
 }
 
 class nagios::target::host {
-    $real_nagios_parent = $nagios_parent ? {
-        '' => 'none',
-        default => $nagios_parent
-    }
-    nagios::host { $fqdn: parents => $real_nagios_parent }
+    nagios::host { $fqdn: parents => $nagios_parent }
 }
 
 # defines
@@ -202,6 +198,10 @@ define nagios::host(
         '' => 'admins',
         default => $nagios_contact_groups_in
     }
+    $real_nagios_parents = $parents ? {
+        '' => 'localhost',
+        default => $parents
+    }
 
     @@nagios_host { $name:
         ensure => present,
@@ -209,7 +209,7 @@ define nagios::host(
         alias => $nagios_alias,
         max_check_attempts => $max_check_attempts,
         notification_interval => $notification_interval,
-        parents => $parents,
+        parents => $real_nagios_parents,
         use => $use,
     }
 }
