@@ -151,6 +151,17 @@ class nagios::centos inherits nagios::base {
         mode => '0644',
         notify => Service['apache'],
     }
+    # default file from rpm
+    file { nagios_localhost_cfg:
+        path => "/etc/nagios/localhost.cfg",
+        source => [ "puppet://$server/files/nagios/configs/${fqdn}/localhost.cfg",
+                    "puppet://$server/files/nagios/configs/${operatingsystem}/localhost.cfg",
+                    "puppet://$server/nagios/configs/${operatingsystem}/localhost.cfg" ],
+        owner => 'root',
+        group => 0,
+        mode => '0644',
+        notify => Service['apache'],
+    }
     file{"/etc/nagios/private/":
         source => "puppet://$server/nagios/empty",
         ensure => directory,
