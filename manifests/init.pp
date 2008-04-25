@@ -131,7 +131,7 @@ class nagios::base {
 } # end nagios::base
 
 class nagios::centos inherits nagios::base {
-    package { [ 'nagios-plugins-smtp','nagios-plugins-http', 'nagios-plugins-ssh', 'nagios-plugins-udp', 'nagios-plugins-tcp', 'nagios-plugins-dig', 'nagios-plugins-nrpe', 'nagios-plugins-load', 'nagios-plugins-dns', 'nagios-plugins-ping', 'nagios-plugins-procs', 'nagios-plugins-users', 'nagios-plugins-ldap', 'nagios-plugins-disk', 'nagios-devel', 'nagios-plugins-swap', 'nagios-plugins-nagios', 'nagios-plugins-perl' ]:
+    package { [ 'nagios-plugins-smtp','nagios-plugins-http', 'nagios-plugins-ssh', 'nagios-plugins-udp', 'nagios-plugins-tcp', 'nagios-plugins-dig', 'nagios-plugins-nrpe', 'nagios-plugins-load', 'nagios-plugins-dns', 'nagios-plugins-ping', 'nagios-plugins-procs', 'nagios-plugins-users', 'nagios-plugins-ldap', 'nagios-plugins-disk', 'nagios-devel', 'nagios-plugins-swap', 'nagios-plugins-nagios', 'nagios-plugins-perl', 'nagios-plugins-ntp', 'nagios-plugins-snmp', 'nagios-plugins-icmp', 'nagios-plugins-ircd' ]:
         ensure => 'present',
         before => Service[nagios],
     }
@@ -192,22 +192,25 @@ class nagios::target::host {
 define nagios::host(
     $ip = $fqdn, 
     $nagios_alias = $hostname, 
+    $max_check_attempts = 4,
+    $notification_interval => 120,
     $use = 'generic-host', 
-    $parents = 'none' ) 
+    $nagios_contact_groups_in = $nagios_contact_groups,
+    $parents = 'localhost' ) 
 {
+    $real_nagios_contact_groups = $nagios_contact_groups_in ? {
+        '' => 'admins',
+        default => $nagios_contact_groups_in
+    }
+
     @@nagios_host { $name:
         ensure => present,
-        alias => $nagios_alias,
         address => $ip,
+        alias => $nagios_alias,
+        max_check_attempts => $max_check_attempts,
+        notification_interval => $notification_interval,
+        parents => $parents,
         use => $use,
-    }
-    case $parents {
-        'none': {}
-        default: {
-            Nagios_host[$name]{
-                parents => $parents,
-            }
-        }
     }
 }
 
@@ -237,6 +240,12 @@ define nagios::service(
 	$host_name = $fqdn, 
     $use = 'generic-service',
     $notification_period = "24x7",
+    $max_check_attempts = 4,
+    $retry_check_interval = 1,
+    $notification_interval = 960,
+    $normal_check_interval = 5,
+    $check_period = "24x7",
+    $nagios_contact_groups_in = $nagios_contact_groups,
     $service_description = ''){
 
 
@@ -244,11 +253,22 @@ define nagios::service(
     # every service needs to have a defined host
     include nagios::target::host
 
+    $real_nagios_contact_groups = $nagios_contact_groups_in ? {
+        '' => 'admins',
+        default => $nagios_contact_groups_in
+    }
+
     @@nagios_service {$name:
         check_command => $check_command,
         use => $use,
         host_name => $host_name,
         notification_period => $notification_period,
+        max_check_attempts => $max_check_attempts,
+        retry_check_interval => $retry_check_interval,
+        notification_interval => $notification_interval,
+        normal_check_interval => $normal_check_interval,
+        contact_groups => $real_nagios_contact_groups,
+        check_period => $check_period,
     }
     # if no service_description is set it is a namevar
     case $service_description {
