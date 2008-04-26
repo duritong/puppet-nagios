@@ -206,8 +206,6 @@ define nagios::host(
         default => $parents
     }
     
-    notice("real_nagios_contact_groups are: $real_nagios_contact_groups | real_nagios_parents: $real_nagios_parents")
-
     @@nagios_host { $name:
         ensure => present,
         address => $ip,
@@ -215,7 +213,7 @@ define nagios::host(
         max_check_attempts => $max_check_attempts,
         notification_interval => $notification_interval,
         parents => $real_nagios_parents,
-    #    contact_groups => $real_nagios_contact_groups,
+        contact_groups => $real_nagios_contact_groups,
         use => $use,
     }
 }
