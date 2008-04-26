@@ -206,7 +206,7 @@ define nagios::host(
         default => $parents
     }
     
-    info("real_nagios_contact_groups are: $real_nagios_contact_groups")
+    notice("real_nagios_contact_groups are: $real_nagios_contact_groups")
 
     @@nagios_host { $name:
         ensure => present,
