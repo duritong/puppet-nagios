@@ -190,7 +190,7 @@ class nagios::target::host {
 # defines
 define nagios::host(
     $ip = $fqdn, 
-    $nagios_alias = $hostname, 
+    $nagios_alias = $fqdn, 
     $max_check_attempts = 4,
     $notification_interval = 120,
     $use = 'generic-host', 
@@ -285,10 +285,9 @@ define nagios::service(
     }
 }
 
-define nagios::service::ping($host_name = $hostname ){
+define nagios::service::ping(){
     nagios::service{ "check_ping_${hostname}":
         check_command => "check_ping!100.0,20%!500.0,60%",
-        host_name => $host_name,
     }
 }
 
