@@ -102,7 +102,7 @@ class nagios::base {
         mode => 0755, owner => root, group => 0;
     }
 	
-    nagios_command{
+    nagios::command{
         ssh_port:
 			command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
 		# from apache2.pp
@@ -112,7 +112,7 @@ class nagios::base {
 		check_dig2: 
             command_line => '$USER1$/check_dig -H $HOSTADDRESS$ -l $ARG1$ --record_type=$ARG2$';
         check_ntp:
-            command_line => '$USER1/check_ntp -H $HOSTADDRESS$ -w 0.5 -c 1';
+            command_line => '$USER1$/check_ntp -H $HOSTADDRESS$ -w 0.5 -c 1';
 	}
 
     Nagios_command <<||>>
@@ -241,6 +241,14 @@ define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $paren
         service_description => "${alias}_check_ping",
         notify => Service[nagios],
    }
+}
+
+# just a wrapper to make the notify more easy
+define nagios::comand( $command_line ){
+    nagios_command{$name
+        command_line => $command,
+        notify => Service[nagios],
+    }
 }
 
 define nagios::service(
