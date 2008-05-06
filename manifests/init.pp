@@ -136,7 +136,7 @@ class nagios::base {
 class nagios::centos inherits nagios::base {
     package { [ 'nagios-plugins-smtp','nagios-plugins-http', 'nagios-plugins-ssh', 'nagios-plugins-udp', 'nagios-plugins-tcp', 'nagios-plugins-dig', 'nagios-plugins-nrpe', 'nagios-plugins-load', 'nagios-plugins-dns', 'nagios-plugins-ping', 'nagios-plugins-procs', 'nagios-plugins-users', 'nagios-plugins-ldap', 'nagios-plugins-disk', 'nagios-devel', 'nagios-plugins-swap', 'nagios-plugins-nagios', 'nagios-plugins-perl', 'nagios-plugins-ntp', 'nagios-plugins-snmp' ]:
         ensure => 'present',
-        before => Service[nagios],
+        notify => Service[nagios],
     }
 
     Service[nagios]{
@@ -152,7 +152,7 @@ class nagios::centos inherits nagios::base {
         owner => 'root',
         group => 0,
         mode => '0644',
-        notify => Service['apache'],
+        notify => Service[nagios],
     }
     # default file from rpm
     file { nagios_localhost_cfg:
@@ -163,17 +163,19 @@ class nagios::centos inherits nagios::base {
         owner => 'root',
         group => 0,
         mode => '0644',
-        notify => Service['apache'],
+        notify => Service[nagios],
     }
     file{"/etc/nagios/private/":
         source => "puppet://$server/nagios/empty",
         ensure => directory,
         purge => true,
         recurse => true,
+        notify => Service[nagios],
         mode => '0750', owner => root, group => nagios;
     }
     file{"/etc/nagios/private/resource.cfg":
         source => "puppet://$server/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
+        notify => Service[nagios],
         owner => root, group => nagios, mode => '0640';
     }
 }
@@ -215,6 +217,7 @@ define nagios::host(
         parents => $real_nagios_parents,
         contact_groups => $real_nagios_contact_groups,
         use => $use,
+        notify => Service[nagios],
     }
 }
 
@@ -236,6 +239,7 @@ define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $paren
         host_name => $ip,
         notification_period => "24x7",
         service_description => "${alias}_check_ping"
+        notify => Service[nagios],
    }
 }
 
@@ -273,6 +277,7 @@ define nagios::service(
         normal_check_interval => $normal_check_interval,
         contact_groups => $real_nagios_contact_groups,
         check_period => $check_period,
+        notify => Service[nagios],
     }
     # if no service_description is set it is a namevar
     case $service_description {
