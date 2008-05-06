@@ -104,15 +104,15 @@ class nagios::base {
 	
     nagios_command{
         ssh_port:
-			command_line => '$USER1/check_ssh -p $ARG1$ $HOSTADDRESS$';
+			command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
 		# from apache2.pp
 		http_port:
-			command_line => '$USER1/check_http -p $ARG1$ -H $HOSTADDRESS$ -I $HOSTADDRESS$';
+			command_line => '$USER1$/check_http -p $ARG1$ -H $HOSTADDRESS$ -I $HOSTADDRESS$';
 		# from bind.pp
 		check_dig2: 
-            command_line => '$USER1/check_dig -H $HOSTADDRESS$ -l $ARG1$ --record_type=$ARG2$';
+            command_line => '$USER1$/check_dig -H $HOSTADDRESS$ -l $ARG1$ --record_type=$ARG2$';
         check_ntp:
-            command_line => '$USER1/check_ntp -H $HOSTADDRESS$ -w 0.5 -c 1 -j -1:100 -k -1:200';
+            command_line => '$USER1$/check_ntp -H $HOSTADDRESS$ -w 0.5 -c 1 -j -1:100 -k -1:200';
 	}
 
     Nagios_command <<||>>
