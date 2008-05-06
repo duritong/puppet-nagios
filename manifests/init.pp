@@ -238,7 +238,7 @@ define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $paren
         use => "generic-service",
         host_name => $ip,
         notification_period => "24x7",
-        service_description => "${alias}_check_ping"
+        service_description => "${alias}_check_ping",
         notify => Service[nagios],
    }
 }
