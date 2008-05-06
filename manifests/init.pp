@@ -246,7 +246,7 @@ define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $paren
 # just a wrapper to make the notify more easy
 define nagios::command( $command_line ){
     nagios_command{$name:
-        command_line => $command,
+        command_line => $command_line,
         notify => Service[nagios],
     }
 }
