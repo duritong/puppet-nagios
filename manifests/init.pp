@@ -103,6 +103,7 @@ class nagios::base {
     }
 	
     nagios::command{
+    nagios_command{
         ssh_port:
 			command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
 		# from apache2.pp
@@ -142,6 +143,7 @@ class nagios::centos inherits nagios::base {
     Service[nagios]{
         hasstatus => true,
     }
+
     # default cmd file from rpm
     # don't forget it to add to the puppet paths
     file { nagios_commands_cfg:
@@ -264,16 +266,14 @@ define nagios::service(
     $nagios_contact_groups_in = $nagios_contact_groups,
     $service_description = ''){
 
-
-    # this is required to pass nagios' internal checks:
-    # every service needs to have a defined host
+    # this ensures nagios internal check, that every 
+    # service has it's host
     include nagios::target::host
 
     $real_nagios_contact_groups = $nagios_contact_groups_in ? {
         '' => 'admins',
         default => $nagios_contact_groups_in
     }
-
     @@nagios_service {$name:
         check_command => $check_command,
         use => $use,
