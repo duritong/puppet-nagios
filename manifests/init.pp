@@ -103,7 +103,6 @@ class nagios::base {
     }
 	
     nagios::command{
-    nagios_command{
         ssh_port:
 			command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
 		# from apache2.pp
