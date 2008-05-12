@@ -91,17 +91,6 @@ class nagios::base {
         mode => 0644, owner => root, group => 0;
     }
 
-    # old way of commands to not break the current config
-    # TODO: integrate these commands into native nagios types
-    file{ "/etc/nagios/legacy/":
-        source => "puppet://$server/files/nagios/legacy",
-        ensure => directory,
-        recurse => true,
-        purge => true,
-        notify => Service[nagios],
-        mode => 0755, owner => root, group => 0;
-    }
-	
     nagios::command{
         ssh_port:
 			command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
