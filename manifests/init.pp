@@ -1,6 +1,6 @@
 #
 # nagios module
-# nagios.p - everything nagios related
+# nagios.pp - everything nagios related
 #
 # Copyright (C) 2007 David Schmitt <david@schmitt.edv-bus.at>
 # Copyright 2008, admin(at)immerda.ch
