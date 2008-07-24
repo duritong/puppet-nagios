@@ -223,7 +223,7 @@ define nagios::host(
 # this will define a host which isn't managed by puppet. 
 # a ping serivce is automatically added
 define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $parents = 'localhost' ) {
-    @@nagios::host{$name:
+    nagios::host{$name:
         ip => $ip, 
         nagios_alias => $nagios_alias, 
         use => $use, 
