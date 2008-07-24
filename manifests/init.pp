@@ -1,6 +1,6 @@
 #
 # nagios module
-# nagios.pp - everything nagios related
+# nagios.p - everything nagios related
 #
 # Copyright (C) 2007 David Schmitt <david@schmitt.edv-bus.at>
 # Copyright 2008, admin(at)immerda.ch
@@ -222,17 +222,14 @@ define nagios::host(
 
 # this will define a host which isn't managed by puppet. 
 # a ping serivce is automatically added
-# please note:
-# - you can use it only on the nagios master (no exported resources)
-# - you can not use this host for any other services!
 define nagios::extra_host($ip, $nagios_alias, $host_use = 'generic-host', $parents = 'localhost' ) {
-    nagios::host{$name:
+    @@nagios::host{$name:
         ip => $ip, 
         nagios_alias => $nagios_alias, 
         use => $use, 
         parents => $parents 
     }
-    nagios_service { "check_ping_${name}":
+    @@nagios_service { "check_ping_${name}":
         check_command => "check_ping!100.0,20%!500.0,60%",
         use => "generic-service",
         host_name => $ip,
