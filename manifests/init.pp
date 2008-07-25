@@ -235,13 +235,11 @@ define nagios::extra_host($ip, $nagios_alias, $use = 'generic-host', $parents = 
         use => $use, 
         parents => $parents 
     }
-    @@nagios_service { "check_ping_${name}":
-        check_command => "check_ping!100.0,20%!500.0,60%",
-        use => "generic-service",
+    nagios::service { "check_ping_${name}":
         host_name => $name,
-        notification_period => "24x7",
+        check_command => "check_ping!100.0,20%!500.0,60%",
+        host_name => $name,
         service_description => "${nagios_alias}_check_ping",
-        notify => Service[nagios],
    }
 }
 
