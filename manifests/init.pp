@@ -235,9 +235,10 @@ define nagios::extra_host($ip, $nagios_alias, $use = 'generic-host', $parents = 
         use => $use, 
         parents => $parents 
     }
+
     nagios::service { "check_ping_${name}":
         host_name => $name,
-        check_command => "check_ping!100.0,20%!500.0,60%",
+        check_command => 'check_ping!100.0,20%!500.0,60%',
         host_name => $name,
         service_description => "${nagios_alias}_check_ping",
    }
@@ -298,8 +299,13 @@ define nagios::service(
 }
 
 define nagios::service::ping(){
+    $real_nagios_ping_rate = $nagios_ping_rate ? {
+        '' => '!100.0,20%!500.0,60%',
+        default => $nagios_ping_rate
+    }
+
     nagios::service{ "check_ping_${hostname}":
-        check_command => "check_ping!100.0,20%!500.0,60%",
+        check_command => "check_ping${real_nagios_ping_rate}",
     }
 }
 
