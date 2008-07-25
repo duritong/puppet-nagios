@@ -238,7 +238,7 @@ define nagios::extra_host($ip, $nagios_alias, $use = 'generic-host', $parents = 
     @@nagios_service { "check_ping_${name}":
         check_command => "check_ping!100.0,20%!500.0,60%",
         use => "generic-service",
-        host_name => $ip,
+        host_name => $name,
         notification_period => "24x7",
         service_description => "${nagios_alias}_check_ping",
         notify => Service[nagios],
@@ -268,7 +268,8 @@ define nagios::service(
 
     # this ensures nagios internal check, that every 
     # service has it's host
-    include nagios::target::host
+    # temporary disabled.
+    # include nagios::target::host
 
     $real_nagios_contact_groups = $nagios_contact_groups_in ? {
         '' => 'admins',
