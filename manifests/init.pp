@@ -240,7 +240,7 @@ define nagios::extra_host($ip, $nagios_alias, $use = 'generic-host', $parents = 
         host_name => $name,
         check_command => 'check_ping!100.0,20%!500.0,60%',
         host_name => $name,
-        service_description => "${nagios_alias}_check_ping",
+        service_description => "check_ping_${nagios_alias}",
    }
 }
 
