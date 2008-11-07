@@ -132,12 +132,12 @@ define nagios::service::http(
 ){
     case $ssl_mode {
         'strict','true','only': {
-            nagios::service{"check_https_${name}_code_${check_code}":
+            nagios::service{"check_https_${name}_code_${check_code}_on_${fqdn}":
                 check_command => "check_https_url_regex!${name}!${check_url}!'${check_code}'",
             }
             case $ssl_mode {
                 'strict': {
-                    nagios::service{"check_http_redirect_${name}":
+                    nagios::service{"check_http_redirect_${name}_on_${fqdn}":
                         check_command => "check_http_url_regex!${name}!${check_url}!'301'",
                     }
                 }
@@ -146,7 +146,7 @@ define nagios::service::http(
     }
     case $ssl_mode {
         'false,true': {
-            nagios::service{"check_http_${name}_code_${check_code}":
+            nagios::service{"check_http_${name}_code_${check_code}_on_${fqdn}":
                 check_command => "check_http_url_regex!${name}!${check_url}!'${check_code}'",
             }
         }
