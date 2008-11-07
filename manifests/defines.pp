@@ -120,3 +120,35 @@ define nagios::service::ping(){
     }
 }
 
+# ssl_mode:
+#   - false: only check http
+#   - true: check http and https
+#   - force: http is permanent redirect to https
+#   - only: check only https
+define nagios::service::http(
+    $check_url = '/',
+    $check_code = 'OK',
+    $ssl_mode = 'false'
+){
+    case $ssl_mode {
+        'strict','true','only': {
+            nagios::service{"check_https_${name}_code_${check_code}":
+                check_command => "check_https_url_regex!${name}!${check_url}!'${check_code}'",
+            }
+            case $ssl_mode {
+                'strict': {
+                    nagios::service{"check_http_redirect_${name}":
+                        check_command => "check_http_url_regex!${name}!${check_url}!'301'",
+                    }
+                }
+            }
+        }
+    }
+    case $ssl_mode {
+        'false,true': {
+            nagios::service{"check_http_${name}_code_${check_code}":
+                check_command => "check_http_url_regex!${name}!${check_url}!'${check_code}'",
+            }
+        }
+    }
+}
