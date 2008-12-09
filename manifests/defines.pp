@@ -129,14 +129,14 @@ define nagios::service::http(
     $check_domain = 'absent',
     $check_url = '/',
     $check_code = 'OK',
-    $ssl_mode = 'false'
+    $ssl_mode = false
 ){
     $real_check_domain = $check_domain ? {
         'absent' => $name,
         default => $check_domain
     }
     case $ssl_mode {
-        'force','true','only': {
+        'force',true,'only': {
             nagios::service{"https_${name}_${check_code}_${hostname}":
                 check_command => "check_https_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
             }
@@ -150,7 +150,7 @@ define nagios::service::http(
         }
     }
     case $ssl_mode {
-        'false','true': {
+        false,true: {
             nagios::service{"http_${name}_${check_code}_${hostname}":
                 check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
             }
