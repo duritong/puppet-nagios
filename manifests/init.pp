@@ -98,15 +98,17 @@ class nagios::base {
         mode => 0644, owner => root, group => 0;
     }
 
+    nagios::plugin{'check_jabber_login': }
+
     nagios::command{
         ssh_port:
-			command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
-		# from apache2.pp
-		http_port:
-			command_line => '$USER1$/check_http -p $ARG1$ -H $HOSTADDRESS$ -I $HOSTADDRESS$';
-		# from bind.pp
-		check_dig2: 
-            command_line => '$USER1$/check_dig -H $HOSTADDRESS$ -l $ARG1$ --record_type=$ARG2$';
+			      command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
+  		  # from apache2.pp
+	    	http_port:
+			      command_line => '$USER1$/check_http -p $ARG1$ -H $HOSTADDRESS$ -I $HOSTADDRESS$';
+    		# from bind.pp
+		    check_dig2: 
+           command_line => '$USER1$/check_dig -H $HOSTADDRESS$ -l $ARG1$ --record_type=$ARG2$';
         check_ntp:
             command_line => '$USER1$/check_ntp -H $HOSTADDRESS$ -w 0.5 -c 1';
         check_http_url:
@@ -121,6 +123,11 @@ class nagios::base {
             command_line => '$USER1$/check_http -S -H $HOSTADDRESS$';
         check_silc:
             command_line => '$USER1$/check_tcp -p 706 -H $ARG1$';
+        check_jabber:
+            command_line => '$USER1$/check_jabber -H $ARG1$';
+        check_jabber:
+            command_line => '$USER1$/check_jabber_login $ARG1$ $ARG2$',
+            require => Nagios::Plugin['check_jabber_login'];
 	}
 
     Nagios_command <<||>>
