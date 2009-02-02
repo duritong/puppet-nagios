@@ -1,6 +1,7 @@
 # manifests/defines.pp
 
 define nagios::host(
+    $ensure = present,
     $ip = $fqdn, 
     $nagios_alias = $hostname, 
     $check_command = 'check-host-alive',
@@ -22,7 +23,7 @@ define nagios::host(
     }
     
     @@nagios_host { $name:
-        ensure => present,
+        ensure => $ensure,
         address => $ip,
         alias => $nagios_alias,
         check_command => $check_command,
@@ -39,8 +40,15 @@ define nagios::host(
 
 # this will define a host which isn't managed by puppet. 
 # a ping serivce is automatically added
-define nagios::extra_host($ip, $nagios_alias, $use = 'generic-host', $parents = 'localhost' ) {
+define nagios::extra_host(
+    $ensure = present,
+    $ip, 
+    $nagios_alias, 
+    $use = 'generic-host', 
+    $parents = 'localhost'
+) {
     nagios::host{$name:
+        ensure => $ensure,
         ip => $ip,
         nagios_alias => $nagios_alias,
         use => $use,
@@ -48,6 +56,7 @@ define nagios::extra_host($ip, $nagios_alias, $use = 'generic-host', $parents = 
     }
 
     nagios::service { "check_ping_${name}":
+        ensure => $ensure,
         host_name => $name,
         check_command => 'check_ping!100.0,20%!500.0,60%',
         host_name => $name,
@@ -56,14 +65,19 @@ define nagios::extra_host($ip, $nagios_alias, $use = 'generic-host', $parents = 
 }
 
 # just a wrapper to make the notify more easy
-define nagios::command( $command_line ){
+define nagios::command(
+  $ensure = present,
+  $command_line
+){
     nagios_command{$name:
+        ensure => $ensure,
         command_line => $command_line,
         notify => Service[nagios],
     }
 }
 
 define nagios::service(
+    $ensure = present,
     $check_command,
     $host_name = $fqdn,
     $use = 'generic-service',
@@ -86,6 +100,7 @@ define nagios::service(
         default => $nagios_contact_groups_in
     }
     @@nagios_service {$name:
+        ensure => $ensure,
         check_command => $check_command,
         use => $use,
         host_name => $host_name,
@@ -109,13 +124,16 @@ define nagios::service(
     }
 }
 
-define nagios::service::ping(){
+define nagios::service::ping(
+    $ensure = present
+){
     $real_nagios_ping_rate = $nagios_ping_rate ? {
         '' => '!100.0,20%!500.0,60%',
         default => $nagios_ping_rate
     }
 
     nagios::service{ "check_ping_${hostname}":
+        ensure => $ensure,
         check_command => "check_ping${real_nagios_ping_rate}",
     }
 }
@@ -126,6 +144,7 @@ define nagios::service::ping(){
 #   - force: http is permanent redirect to https
 #   - only: check only https
 define nagios::service::http(
+    $ensure = present,
     $check_domain = 'absent',
     $check_url = '/',
     $check_code = 'OK',
@@ -138,11 +157,13 @@ define nagios::service::http(
     case $ssl_mode {
         'force',true,'only': {
             nagios::service{"https_${name}_${check_code}_${hostname}":
+                ensure => $ensure,
                 check_command => "check_https_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
             }
             case $ssl_mode {
                 'force': {
                     nagios::service{"httprd_${name}_${hostname}":
+                        ensure => $ensure,
                         check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'301'",
                     }
                 }
@@ -152,18 +173,22 @@ define nagios::service::http(
     case $ssl_mode {
         false,true: {
             nagios::service{"http_${name}_${check_code}_${hostname}":
+                ensure => $ensure,
                 check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
             }
         }
     }
 }
 
-define nagios::plugin(){
+define nagios::plugin(
+    $ensure = present
+){
   file{$name:
     path => $hardwaremodel ? {
       'x86_64' => "/usr/lib64/nagios/plugins/$name",
       default => "/usr/lib/nagios/plugins/$name",
     },
+    ensure => $ensure,
     source => "puppet://$server/nagios/plugins/$name",
     require => Package['nagios-plugins'],
     owner => root, group => 0, mode => 0755;

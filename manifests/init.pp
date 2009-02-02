@@ -125,7 +125,7 @@ class nagios::base {
             command_line => '$USER1$/check_tcp -p 706 -H $ARG1$';
         check_jabber:
             command_line => '$USER1$/check_jabber -H $ARG1$';
-        check_jabber:
+        check_jabber_login:
             command_line => '$USER1$/check_jabber_login $ARG1$ $ARG2$',
             require => Nagios::Plugin['check_jabber_login'];
 	}
