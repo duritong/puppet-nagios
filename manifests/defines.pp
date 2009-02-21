@@ -115,7 +115,11 @@ define nagios::service(
     }
     # if no service_description is set it is a namevar
     case $service_description {
-        '': {}
+        '': {
+            Nagios_service[$name]{
+                service_description => $name,
+            }
+        }
         default: {
             Nagios_service[$name]{
                 service_description => $service_description,
