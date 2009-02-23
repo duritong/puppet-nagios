@@ -88,7 +88,8 @@ define nagios::service(
     $normal_check_interval = 5,
     $check_period = "24x7",
     $nagios_contact_groups_in = $nagios_contact_groups,
-    $service_description = ''){
+    $service_description = 'absent')
+{
 
     # this ensures nagios internal check, that every 
     # service has it's host
@@ -113,9 +114,8 @@ define nagios::service(
         check_period => $check_period,
         notify => Service[nagios],
     }
-    # if no service_description is set it is a namevar
     case $service_description {
-        '': {
+        'absent': {
             Nagios_service[$name]{
                 service_description => $name,
             }
