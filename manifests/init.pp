@@ -42,7 +42,7 @@ class nagios::base {
     # manage nagios cfg files
     file {nagios_cfg_dir:
         path => "/etc/nagios/",
-        source => "puppet://$server/nagios/empty",
+        source => "puppet://$server/common/empty",
         ensure => directory,
         recurse => true,
         purge => true,
@@ -182,7 +182,7 @@ class nagios::centos inherits nagios::base {
         notify => Service[nagios],
     }
     file{"/etc/nagios/private/":
-        source => "puppet://$server/nagios/empty",
+        source => "puppet://$server/common/empty",
         ensure => directory,
         purge => true,
         recurse => true,
