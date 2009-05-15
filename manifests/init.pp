@@ -146,6 +146,14 @@ class nagios::base {
     if $use_munin {
         include munin::plugins::nagios
     }
+
+    if $nagios_allow_external_cmd {
+        file{'/var/spool/nagios/cmd':
+            ensure => 'directory',
+            require => Package['nagios'],
+            owner => apache, group => nagios, mode => 2660;
+        }
+    }
 } # end nagios::base
 
 class nagios::centos inherits nagios::base {

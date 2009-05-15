@@ -68,6 +68,16 @@ neither automatically valid - it is not guaranteed that all components declare a
 nagios::service - and even if the configuration is valid it definitly is
 unverified, since that is always a judgment call for an external observer.
 
+Variables
+=========
+
+Options to change the behavior of the nagios module:
+
+- nagios_allow_external_cmd: set it to true, if you'd like to ensure that apache can
+                             write to the external command file. Mandatory using
+                             external commands.
+
+
 Examples
 ========
 
