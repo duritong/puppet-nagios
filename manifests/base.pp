@@ -97,6 +97,8 @@ class nagios::base {
             command_line => '$USER1$/check_http -S -H $HOSTADDRESS$';
         check_silc:
             command_line => '$USER1$/check_tcp -p 706 -H $ARG1$';
+        check_sobby:
+            command_line => '$USER1$/check_tcp -H $ARG1$ -p $ARG2$';
         check_jabber:
             command_line => '$USER1$/check_jabber -H $ARG1$';
         check_jabber_login:
