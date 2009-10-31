@@ -19,7 +19,6 @@ define nagios::extra_host(
         ensure => $ensure,
         host_name => $name,
         check_command => 'check_ping!100.0,20%!500.0,60%',
-        host_name => $name,
         service_description => "check_ping_${nagios_alias}",
    }
 }
