@@ -30,8 +30,8 @@ class nagios::base {
       source => [ "puppet://$server/files/nagios/configs/${fqdn}/nagios.cfg",
                         "puppet://$server/files/nagios/configs/${operatingsystem}/nagios.cfg",
                         "puppet://$server/files/nagios/configs/nagios.cfg",
-                        "puppet://$server/nagios/configs/${operatingsystem}/nagios.cfg",
-                        "puppet://$server/nagios/configs/nagios.cfg" ],
+                        "puppet://$server/modules/nagios/configs/${operatingsystem}/nagios.cfg",
+                        "puppet://$server/modules/nagios/configs/nagios.cfg" ],
             notify => Service[nagios],
             mode => 0644, owner => root, group => root;
     }
@@ -40,8 +40,8 @@ class nagios::base {
         source => [ "puppet://$server/files/nagios/configs/${fqdn}/cgi.cfg",
                     "puppet://$server/files/nagios/configs/${operatingsystem}/cgi.cfg",
                     "puppet://$server/files/nagios/configs/cgi.cfg",
-                    "puppet://$server/nagios/configs/${operatingsystem}/cgi.cfg",
-                    "puppet://$server/nagios/configs/cgi.cfg" ],
+                    "puppet://$server/modules/nagios/configs/${operatingsystem}/cgi.cfg",
+                    "puppet://$server/modules/nagios/configs/cgi.cfg" ],
         owner => 'root',
         group => 0,
         mode => '0644',
@@ -51,7 +51,7 @@ class nagios::base {
     file {"/etc/nagios/htpasswd.users":
             source => [
                 "puppet://$server/files/nagios/htpasswd.users",
-                "puppet://$server/nagios/htpasswd.users" ],
+                "puppet://$server/modules/nagios/htpasswd.users" ],
             mode => 0640, owner => root, group => apache;
     }
     file{[ "/etc/nagios/nagios_command.cfg",

@@ -14,7 +14,7 @@ class nagios::centos inherits nagios::base {
         path => "/etc/nagios/commands.cfg",
         source => [ "puppet://$server/files/nagios/configs/${fqdn}/commands.cfg",
                     "puppet://$server/files/nagios/configs/${operatingsystem}/commands.cfg",
-                    "puppet://$server/nagios/configs/${operatingsystem}/commands.cfg" ],
+                    "puppet://$server/modules/nagios/configs/${operatingsystem}/commands.cfg" ],
         owner => 'root',
         group => 0,
         mode => '0644',
@@ -25,7 +25,7 @@ class nagios::centos inherits nagios::base {
         path => "/etc/nagios/localhost.cfg",
         source => [ "puppet://$server/files/nagios/configs/${fqdn}/localhost.cfg",
                     "puppet://$server/files/nagios/configs/${operatingsystem}/localhost.cfg",
-                    "puppet://$server/nagios/configs/${operatingsystem}/localhost.cfg" ],
+                    "puppet://$server/modules/nagios/configs/${operatingsystem}/localhost.cfg" ],
         owner => 'root',
         group => 0,
         mode => '0644',
@@ -40,7 +40,7 @@ class nagios::centos inherits nagios::base {
         mode => '0750', owner => root, group => nagios;
     }
     file{"/etc/nagios/private/resource.cfg":
-        source => "puppet://$server/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
+        source => "puppet://$server/modules/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
         notify => Service[nagios],
         owner => root, group => nagios, mode => '0640';
     }
