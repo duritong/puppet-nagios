@@ -32,7 +32,7 @@ class nagios::centos inherits nagios::base {
         notify => Service[nagios],
     }
     file{"/etc/nagios/private/":
-        source => "puppet://$server/common/empty",
+        source => "puppet://$server/modules/common/empty",
         ensure => directory,
         purge => true,
         recurse => true,
