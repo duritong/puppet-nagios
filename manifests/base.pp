@@ -16,7 +16,7 @@ class nagios::base {
 
     # manage nagios cfg files
     file {nagios_cfg_dir:
-        path => "/etc/nagios/",
+        path => '/etc/nagios',
         source => "puppet://$server/modules/common/empty",
         ensure => directory,
         recurse => true,
@@ -27,9 +27,9 @@ class nagios::base {
     # this file should contain all the nagios_puppet-paths:
     file {nagios_main_cfg:
             path => "/etc/nagios/nagios.cfg",
-      source => [ "puppet://$server/files/nagios/configs/${fqdn}/nagios.cfg",
-                        "puppet://$server/files/nagios/configs/${operatingsystem}/nagios.cfg",
-                        "puppet://$server/files/nagios/configs/nagios.cfg",
+      source => [ "puppet://$server/modules/site-nagios/configs/${fqdn}/nagios.cfg",
+                        "puppet://$server/modules/site-nagios/configs/${operatingsystem}/nagios.cfg",
+                        "puppet://$server/modules/site-nagios/configs/nagios.cfg",
                         "puppet://$server/modules/nagios/configs/${operatingsystem}/nagios.cfg",
                         "puppet://$server/modules/nagios/configs/nagios.cfg" ],
             notify => Service[nagios],
@@ -37,9 +37,9 @@ class nagios::base {
     }
     file { nagios_cgi_cfg:
         path => "/etc/nagios/cgi.cfg",
-        source => [ "puppet://$server/files/nagios/configs/${fqdn}/cgi.cfg",
-                    "puppet://$server/files/nagios/configs/${operatingsystem}/cgi.cfg",
-                    "puppet://$server/files/nagios/configs/cgi.cfg",
+        source => [ "puppet://$server/modules/site-nagios/configs/${fqdn}/cgi.cfg",
+                    "puppet://$server/modules/site-nagios/configs/${operatingsystem}/cgi.cfg",
+                    "puppet://$server/modules/site-nagios/configs/cgi.cfg",
                     "puppet://$server/modules/nagios/configs/${operatingsystem}/cgi.cfg",
                     "puppet://$server/modules/nagios/configs/cgi.cfg" ],
         owner => 'root',
@@ -50,7 +50,7 @@ class nagios::base {
 
     file {"/etc/nagios/htpasswd.users":
             source => [
-                "puppet://$server/files/nagios/htpasswd.users",
+                "puppet://$server/modules/site-nagios/htpasswd.users",
                 "puppet://$server/modules/nagios/htpasswd.users" ],
             mode => 0640, owner => root, group => apache;
     }
