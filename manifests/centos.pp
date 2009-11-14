@@ -12,8 +12,8 @@ class nagios::centos inherits nagios::base {
     # don't forget it to add to the puppet paths
     file { nagios_commands_cfg:
         path => "/etc/nagios/commands.cfg",
-        source => [ "puppet://$server/files/nagios/configs/${fqdn}/commands.cfg",
-                    "puppet://$server/files/nagios/configs/${operatingsystem}/commands.cfg",
+        source => [ "puppet://$server/modules/site-nagios/configs/${fqdn}/commands.cfg",
+                    "puppet://$server/modules/site-nagios/configs/${operatingsystem}/commands.cfg",
                     "puppet://$server/modules/nagios/configs/${operatingsystem}/commands.cfg" ],
         owner => 'root',
         group => 0,
@@ -23,8 +23,8 @@ class nagios::centos inherits nagios::base {
     # default file from rpm
     file { nagios_localhost_cfg:
         path => "/etc/nagios/localhost.cfg",
-        source => [ "puppet://$server/files/nagios/configs/${fqdn}/localhost.cfg",
-                    "puppet://$server/files/nagios/configs/${operatingsystem}/localhost.cfg",
+        source => [ "puppet://$server/modules/site-nagios/configs/${fqdn}/localhost.cfg",
+                    "puppet://$server/modules/site-nagios/configs/${operatingsystem}/localhost.cfg",
                     "puppet://$server/modules/nagios/configs/${operatingsystem}/localhost.cfg" ],
         owner => 'root',
         group => 0,
