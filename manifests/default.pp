@@ -8,7 +8,6 @@ define nagios::default {
                     "puppet://$server/nagios/configs/${operatingsystem}/defaults/${name}.cfg",
                     "puppet://$server/nagios/configs/defaults/${name}.cfg" ],
         notify => Service['nagios'],
-        ensure => absent,
         mode => 0644, owner => root, group => root;
     }
 
