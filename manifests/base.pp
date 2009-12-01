@@ -55,7 +55,7 @@ class nagios::base {
 
     file { 'nagios_private':
         path => "${nagios_cfg_dir}/private/",
-        source => "puppet://$server/nagios/empty",
+        source => "puppet://$server/modules/common/empty",
         ensure => directory,
         purge => true,
         recurse => true,
@@ -72,7 +72,7 @@ class nagios::base {
 
     file { 'nagios_defaults':
         path => "${nagios_cfg_dir}/defaults/",
-        source => "puppet://$server/nagios/empty",
+        source => "puppet://$server/modules/common/empty",
         ensure => directory,
         purge => true,
         recurse => true,
