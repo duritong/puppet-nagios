@@ -11,4 +11,6 @@ class nagios::debian inherits nagios::base {
         name => 'nagios3',
         hasstatus => true,
     }
+
+    File['nagios_htpasswd', 'nagios_cgi_cfg'] { group => 'www-data' }
 }
