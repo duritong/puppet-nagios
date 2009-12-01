@@ -83,8 +83,8 @@ class nagios::base {
         # from bind.pp
         check_dig2:
            command_line => '$USER1$/check_dig -H $HOSTADDRESS$ -l $ARG1$ --record_type=$ARG2$';
-        check_ntp:
-            command_line => '$USER1$/check_ntp -H $HOSTADDRESS$ -w 0.5 -c 1';
+        check_ntp_time:
+            command_line => '$USER1$/check_ntp_time -H $HOSTADDRESS$ -w 0.5 -c 1';
         check_http_url:
             command_line => '$USER1$/check_http -H $ARG1$ -u $ARG2$';
         check_http_url_regex:
