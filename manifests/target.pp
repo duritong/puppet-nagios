@@ -1,5 +1,15 @@
 # manifests/target.pp
 
 class nagios::target {
-    include nagios::target::host
+
+    @@nagios_host { "${fqdn}":
+        address => $ipaddress,
+        alias => $hostname,
+        use => 'generic-host',
+    }
+
+    if ($nagios_parents != '') {
+        Nagios_host["${fqdn}"] { parents => $nagios_parents }
+    }
+
 }
