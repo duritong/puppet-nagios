@@ -59,6 +59,16 @@ class nagios::base {
         owner => root, group => nagios, mode => '0640';
     }
 
+    file { 'nagios_confd':
+        path => "${nagios_cfgdir}/conf.d/",
+        source => "puppet://$server/modules/common/empty",
+        ensure => directory,
+        purge => true,
+        recurse => true,
+        notify => Service['nagios'],
+        mode => '0750', owner => root, group => nagios;
+    }
+
     Nagios_command <<||>>
     Nagios_contact <<||>>
     Nagios_contactgroup <<||>>
@@ -132,7 +142,7 @@ class nagios::base {
            "${nagios_cfgdir}/conf.d/nagios_servicedependency.cfg",
            "${nagios_cfgdir}/conf.d/nagios_serviceescalation.cfg",
            "${nagios_cfgdir}/conf.d/nagios_serviceextinfo.cfg",
-           "${nagios_cfgdir}/conf.d/nagios_timeperdiod.cfg" ]:
+           "${nagios_cfgdir}/conf.d/nagios_timeperiod.cfg" ]:
         ensure => file,
         replace => false,
         notify => Service['nagios'],
