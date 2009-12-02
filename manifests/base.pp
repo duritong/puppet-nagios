@@ -12,17 +12,6 @@ class nagios::base {
         require => Package['nagios'],
     }
 
-    # manage nagios cfg files
-    file { 'nagios_cfg_dir':
-        path => "${nagios_cfg_dir}/",
-        source => "puppet://$server/modules/common/empty",
-        ensure => directory,
-        recurse => true,
-        purge => true,
-        notify => Service['nagios'],
-        mode => 0755, owner => root, group => root;
-    }
-
     # this file should contain all the nagios_puppet-paths:
     file { 'nagios_main_cfg':
             path => "${nagios_cfg_dir}/nagios.cfg",
@@ -80,6 +69,68 @@ class nagios::base {
         mode => '0755', owner => root, group => nagios;
     }
 
+    Nagios_command <<||>>
+    Nagios_contact <<||>>
+    Nagios_contactgroup <<||>>
+    Nagios_host <<||>>
+    Nagios_hostextinfo <<||>>
+    Nagios_hostgroup <<||>>
+    Nagios_hostgroupescalation <<||>>
+    Nagios_service <<||>>
+    Nagios_servicedependency <<||>>
+    Nagios_serviceescalation <<||>>
+    Nagios_serviceextinfo <<||>>
+    Nagios_timeperiod <<||>>
+
+    Nagios_command <||> {
+        target => "${nagios_cfg_dir}/nagios_command.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_contact <||> {
+        target => "${nagios_cfg_dir}/nagios_contact.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_contactgroup <||> {
+        target => "${nagios_cfg_dir}/nagios_contactgroup.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_host <||> {
+        target => "${nagios_cfg_dir}/nagios_host.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_hostextinfo <||> {
+        target => "${nagios_cfg_dir}/nagios_hostextinfo.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_hostgroup <||> {
+        target => "${nagios_cfg_dir}/nagios_hostgroup.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_hostgroupescalation <||> {
+        target => "${nagios_cfg_dir}/nagios_hostgroupescalation.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_service <||> {
+        target => "${nagios_cfg_dir}/nagios_service.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_servicedependency <||> {
+        target => "${nagios_cfg_dir}/nagios_servicedependency.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_serviceescalation <||> {
+        target => "${nagios_cfg_dir}/nagios_serviceescalation.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_serviceextinfo <||> {
+        target => "${nagios_cfg_dir}/nagios_serviceextinfo.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_timeperiod <||> {
+        target => "${nagios_cfg_dir}/nagios_timeperiod.cfg",
+        notify => Service['nagios'],
+    }
+
     file{[ "${nagios_cfg_dir}/nagios_command.cfg", 
            "${nagios_cfg_dir}/nagios_contact.cfg", 
            "${nagios_cfg_dir}/nagios_contactgroup.cfg",
@@ -98,18 +149,17 @@ class nagios::base {
         mode => 0644, owner => root, group => 0;
     }
 
-    Nagios_command <<||>>
-    Nagios_contact <<||>>
-    Nagios_contactgroup <<||>>
-    Nagios_host <<||>>
-    Nagios_hostextinfo <<||>>
-    Nagios_hostgroup <<||>>
-    Nagios_hostgroupescalation <<||>>
-    Nagios_service <<||>>
-    Nagios_servicedependency <<||>>
-    Nagios_serviceescalation <<||>>
-    Nagios_serviceextinfo <<||>>
-    Nagios_timeperiod <<||>>
+    # manage nagios cfg files
+    # must be defined after exported resource overrides and cfg file defs
+    file { 'nagios_cfg_dir':
+        path => "${nagios_cfg_dir}/",
+        source => "puppet://$server/modules/common/empty",
+        ensure => directory,
+        recurse => true,
+        purge => true,
+        notify => Service['nagios'],
+        mode => 0755, owner => root, group => root;
+    }
 
     if $use_munin {
         include munin::plugins::nagios
