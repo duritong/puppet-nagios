@@ -29,9 +29,6 @@ class nagios::defaults::commands {
             command_line => '$USER1$/check_tcp -H $ARG1$ -p $ARG2$';
         check_jabber:
             command_line => '$USER1$/check_jabber -H $ARG1$';
-        check_jabber_login:
-            command_line => '$USER1$/check_jabber_login $ARG1$ $ARG2$',
-            require => Nagios::Plugin['check_jabber_login'];
     }
 
     # notification commands
