@@ -1,5 +1,8 @@
 class nagios::defaults::service_templates {
 
+    # this inoperative for the moment, see :
+    # http://projects.reductivelabs.com/issues/1180
+
     nagios_service {
         'generic-service':
             active_checks_enabled           => '1',

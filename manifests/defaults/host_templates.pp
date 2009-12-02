@@ -1,5 +1,8 @@
 class nagios::defaults::host_templates {
 
+    # this inoperative for the moment, see :
+    # http://projects.reductivelabs.com/issues/1180
+
     nagios_host {
         'generic-host':
             notifications_enabled           => '1',

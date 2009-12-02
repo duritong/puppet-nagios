@@ -21,8 +21,6 @@ class nagios::defaults::commands {
             command_line => '$USER1$/check_http --ssl -H $ARG1$ -u $ARG2$';
         check_https_url_regex:
             command_line => '$USER1$/check_http --ssl -H $ARG1$ -u $ARG2$ -e $ARG3$';
-        check_https:
-            command_line => '$USER1$/check_http -S -H $HOSTADDRESS$';
         check_silc:
             command_line => '$USER1$/check_tcp -p 706 -H $ARG1$';
         check_sobby:
