@@ -26,30 +26,30 @@ class nagios::base {
     # this file should contain all the nagios_puppet-paths:
     file { 'nagios_main_cfg':
             path => "${nagios_cfg_dir}/nagios.cfg",
-            source => [ "puppet://$server/files/nagios/configs/${fqdn}/nagios.cfg",
-                        "puppet://$server/files/nagios/configs/${operatingsystem}/nagios.cfg",
-                        "puppet://$server/files/nagios/configs/nagios.cfg",
-                        "puppet://$server/nagios/configs/${operatingsystem}/nagios.cfg",
-                        "puppet://$server/nagios/configs/nagios.cfg" ],
+            source => [ "puppet://$server/modules/site-nagios/configs/${fqdn}/nagios.cfg",
+                        "puppet://$server/modules/site-nagios/configs/${operatingsystem}/nagios.cfg",
+                        "puppet://$server/modules/site-nagios/configs/nagios.cfg",
+                        "puppet://$server/modules/nagios/configs/${operatingsystem}/nagios.cfg",
+                        "puppet://$server/modules/nagios/configs/nagios.cfg" ],
             notify => Service['nagios'],
             mode => 0644, owner => root, group => root;
     }    
 
     file { 'nagios_cgi_cfg':
         path => "${nagios_cfg_dir}/cgi.cfg",
-        source => [ "puppet://$server/files/nagios/configs/${fqdn}/cgi.cfg",
-                    "puppet://$server/files/nagios/configs/${operatingsystem}/cgi.cfg",
-                    "puppet://$server/files/nagios/configs/cgi.cfg",
-                    "puppet://$server/nagios/configs/${operatingsystem}/cgi.cfg",
-                    "puppet://$server/nagios/configs/cgi.cfg" ],
+        source => [ "puppet://$server/modules/site-nagios/configs/${fqdn}/cgi.cfg",
+                    "puppet://$server/modules/site-nagios/configs/${operatingsystem}/cgi.cfg",
+                    "puppet://$server/modules/site-nagios/configs/cgi.cfg",
+                    "puppet://$server/modules/nagios/configs/${operatingsystem}/cgi.cfg",
+                    "puppet://$server/modules/nagios/configs/cgi.cfg" ],
         mode => '0644', owner => 'root', group => 0,
         notify => Service['apache'],
     }
 
     file { 'nagios_htpasswd':
         path => "${nagios_cfg_dir}/htpasswd.users",
-        source => [ "puppet://$server/files/nagios/htpasswd.users",
-                    "puppet://$server/nagios/htpasswd.users" ],
+        source => [ "puppet://$server/modules/site-nagios/nagios/htpasswd.users",
+                    "puppet://$server/modules/nagios/htpasswd.users" ],
         mode => 0640, owner => root, group => apache;
     }
 
