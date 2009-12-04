@@ -5,20 +5,24 @@ This modules was inspired and based on the work of David Schmitt
 The immerda project group adapted and improved this module. 
 Mainly we made it using the new native puppet nagios commands
 as well we made it more modular to fit for multidistro usage.
-However as we used Centos, we couldn't test the original Debian
-extension of David Schmitt, integration of more distros have to prove
-this concept.
+
+In it's current form, this module can be used on CentOS and Debian.
+
 
 Overview
 ========
 
 To use the nagios resources, activate storeconfigs on the puppetmaster.
 
+
 Monitor
 -------
 
-On one node the "nagios" class has to be included. This installes nagios and
-apache2 and installs the cgi 
+On one node the "nagios" class has to be included. By default this installs
+apache using the "apache" module. To use lighttpd instead, include
+"nagios::lighttpd", or, if the web server is not to be managed by puppet,
+include "nagios::headless".
+
 
 Hosts
 -----
@@ -27,10 +31,13 @@ On a node which shall be monitored with nagios, include the "nagios::target".
 This just creates a host declaration for this hosts "$fqdn".
 Set the $nagios_parent variable in the node scope for enabling the reachability
 features of nagios. If a node needs more customisation, use the
-"nagios::host" component directly.
+native "@@nagios_host" type directly (the double-ampersand declares the object
+as an exported resource).
 
-To monitor hosts not managed by puppet, add "nagios::extra_host"s to the
-monitoring node. These can be used as intermediate $nagios_parent's
+To monitor hosts not managed by puppet, add "nagios_host" objects to the
+monitoring node. The required parameters are "alias", "address" and "use". If
+you don't specify a proper nagios template with the "use" parameter, some extra
+parameters are needed. You may look up the nagios documentation for this.
 
 
 Services
@@ -40,23 +47,21 @@ Services can be monitored by using the "nagios::service" component.
 
 The simplest form is::
 
-	nagios::service { check_dns: }
+	nagios::service { 'check_http':
+        check_command => 'http_port!80',
+    }
 
 The intention being obviously to put such declarations into a component defining
 a service, thereby being automatically applied together with all instances of
 the service.
 
+Obviously, the check command must either be defined using nagios_command objects
+(some are supplied in nagios::defaults::commands) or in the nagios configuration
+files directly.
+
+
 Caveats
 =======
-
-
-Performance
------------
-
-A major drawback is that currently the needed storeconfig setting and
-subsequent filling of the database is really a drag on performance. 0.22.1
-for example breaks at approximatly 120 monitored services (depends on H/W of
-course). 0.22.3 has improved that my a factor of 3-4. 
 
 
 Consistency/Validation/Verification
@@ -68,24 +73,45 @@ neither automatically valid - it is not guaranteed that all components declare a
 nagios::service - and even if the configuration is valid it definitly is
 unverified, since that is always a judgment call for an external observer.
 
+
+Removal of nagios objects
+-------------------------
+
+This module does not automatically purge nagios objects such as hosts and
+services that become absent from the manifests. One must set ensure => absent
+to guarantee the removal of nagios objects from the configuration as desired.
+
+
+Templates not supported using native types
+------------------------------------------
+
+Templates of hosts and services cannot yet be defined using native types. In
+this module, they are provided using a file resource by the class
+nagios::defaults::templates
+
+See : http://projects.reductivelabs.com/issues/1180
+
+
 Variables
 =========
 
 Options to change the behavior of the nagios module:
 
-- nagios_allow_external_cmd: set it to true, if you'd like to ensure that apache can
-                             write to the external command file. Mandatory using
-                             external commands.
+- nagios_allow_external_cmd: Set to true, if you'd like to ensure that your http
+                             daemon can write to the external command file. You 
+                             may also need to flip "check_external_commands" in
+                             "nagios.cfg" to enable this functionality.
 
 
 Examples
 ========
 
-Usage example::
+Usage example:
 
 node nagios {
 
-	include nagios
+    include nagios::apache
+    include nagios::defaults
 
 	# Declare another nagios command
 	nagios::command { http_port: command_line
@@ -93,13 +119,17 @@ node nagios {
 $HOSTADDRESS$'
 
 	# Declare unmanaged hosts
-	nagios_extra_host {
-        	"router01":
-                	parent => "gateway",
-                	ip => "10.0.0.1";
-        	"router02":
-                	parent => "router01",
-                	ip => "192.168.0.1";
+	nagios_host {
+        	'router01.mydomain.com':
+                	alias => 'router01',
+                    notes => 'MyDomain Gateway',
+                    address => "10.0.0.1",
+                    use => 'generic-host';
+        	"router02.mydomain.com":
+                    alias => 'router02',
+                	address => '192.168.0.1',
+                	parents => 'router01',
+                    use => 'generic-host';
 	}
 
 }
@@ -108,8 +138,8 @@ $HOSTADDRESS$'
 node target {
 
 	# Monitor this host
-	$nagios_parent = "router01"
-	include nagios_target
+	$nagios_parent = 'router01'
+	include nagios::target
 
 	# monitor a service
 	$apache2_port = 8080
@@ -121,6 +151,14 @@ node target {
 	#}
 
 }
+
+TODO
+====
+
+- Provide a default http vhost
+- Add facility to deploy nagios plugins
+- Add more useful commands and services
+- When Puppet will support them, supply nagios templates using native types
 
 
 License
