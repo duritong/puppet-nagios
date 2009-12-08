@@ -10,8 +10,8 @@ define nagios::service (
     $notification_period = '',
     $notification_options = '',
     $contact_groups = '',
-    $use = '',
-    $service_description = '' )
+    $use = 'absent',
+    $service_description = 'absent' )
 {
 
     # TODO: this resource should normally accept all nagios_host parameters
@@ -53,20 +53,16 @@ define nagios::service (
         Nagios_service["${real_name}"] { notification_options => $notification_options }
     }
 
-    if ($use != 'absent') {
-        if ($use == '') {
-            Nagios_service["${real_name}"] { use => 'generic-service' }
-        } else {
-            Nagios_service["${real_name}"] { use => $use }
-        }
+    if ($use == 'absent') {
+        Nagios_service["${real_name}"] { use => 'generic-service' }
+    } else {
+        Nagios_service["${real_name}"] { use => $use }
     }
 
-    if ($service_description != 'absent') {
-        if ($service_description == '') {
-            Nagios_service["${real_name}"] { service_description => $name }
-        } else {
-            Nagios_service["${real_name}"] { service_description => $service_description }
-        }
+    if ($service_description == 'absent') {
+        Nagios_service["${real_name}"] { service_description => $name }
+    } else {
+        Nagios_service["${real_name}"] { service_description => $service_description }
     }
 
 }
