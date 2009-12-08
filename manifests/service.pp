@@ -53,10 +53,6 @@ define nagios::service (
         Nagios_service["${real_name}"] { notification_options => $notification_options }
     }
 
-    if ($use != '') {
-        Nagios_service["${real_name}"] { use => $use }
-    }
-
     if ($use != 'absent') {
         if ($use == '') {
             Nagios_service["${real_name}"] { use => 'generic-service' }
