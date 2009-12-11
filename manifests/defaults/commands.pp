@@ -35,6 +35,12 @@ class nagios::defaults::commands {
             command_line => '$USER1$/check_http --ssl -H $ARG1$ -u $ARG2$';
         check_https_url_regex:
             command_line => '$USER1$/check_http --ssl -H $ARG1$ -u $ARG2$ -e $ARG3$';
+        check_mysql:
+            command_line => '$USER1$/check_mysql -u $ARG1$ -p $ARG2$ -d $ARG3$ ';
+        check_mysql_socket:
+            command_line => '$USER1$/check_mysql -s $ARG1$ -u $ARG2$ -p $ARG3$ -d $ARG4$ ';
+        check_mysql_tcp:
+            command_line => '$USER1$/check_mysql -H $ARG1$ -u $ARG2$ -p $ARG3$ -d $ARG4$';
         check_ntp_time:
             command_line => '$USER1$/check_ntp_time -H $HOSTADDRESS$ -w 0.5 -c 1';
         check_silc:
