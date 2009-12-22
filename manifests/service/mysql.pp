@@ -4,30 +4,24 @@ define nagios::service::mysql(
     $check_socket = 'absent',
     $check_username = 'nagios',
     $check_password = '',
-    $check_database = '',
-    $check_mode = 'absent'
+    $check_mode = 'tcp'
 ){
 
-    $real_check_mode = $check_mode ? {
-        'absent' => 'tcp',
-        default => 'socket',
-    }
-
-    case $real_check_mode {
+    case $check_mode {
         # Check MySQL using TCP
         'tcp': {
             nagios::service { 'mysql_tcp':
                 ensure => $ensure,
-                check_command => "check_mysql_tcp!${check_hostname}!${check_username}!${check_password}!${check_database}",
+                check_command => "check_mysql_tcp!${check_hostname}!${check_username}!${check_password}",
             }
         }
         # Check MySQL using local socket
-        'socket': {
+        default: {
             nagios::service { 'mysql_socket':
                 ensure => $ensure,
                 check_command => $check_socket ? {
                     'absent' => "check_mysql!${check_username}!${check_password}!${check_database}",
-                    default => "check_mysql_socket!${check_socket}!${check_username}!${check_password}!${check_database}",
+                    default => "check_mysql_socket!${check_socket}!${check_username}!${check_password}",
                 },
             }
         }
