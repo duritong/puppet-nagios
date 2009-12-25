@@ -1,6 +1,6 @@
 define nagios::service(
     $ensure = present,
-    $check_command,
+    $check_command = absent,
     $host_name = $fqdn,
     $use = 'generic-service',
     $notification_period = "24x7",
@@ -12,6 +12,10 @@ define nagios::service(
     $nagios_contact_groups_in = $nagios_contact_groups,
     $service_description = 'absent')
 {
+
+    if $ensure == present and $check_command == absent {
+      fail("You have to define \$check_command if nagios::service shoudl be present!")
+    }
 
     # this ensures nagios internal check, that every 
     # service has it's host
