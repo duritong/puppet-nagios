@@ -2,11 +2,14 @@
 # a ping serivce is automatically added
 define nagios::extra_host(
     $ensure = present,
-    $ip,
-    $nagios_alias,
+    $ip = 'absent',
+    $nagios_alias = 'absent',
     $use = 'generic-host',
     $parents = 'localhost'
 ) {
+    if $ensure == 'present' and ($ip == 'absent' or $nagios_alias == 'absent'){
+      fail("You need to define \$ip and \$nagios_alias if extra_host should be present!")
+    }
     nagios::host{$name:
         ensure => $ensure,
         ip => $ip,
