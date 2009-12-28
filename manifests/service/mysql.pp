@@ -1,29 +1,48 @@
+# Checks a mysql instance via tcp or socket
+
 define nagios::service::mysql(
     $ensure = present,
-    $check_hostname = 'localhost',
-    $check_socket = 'absent',
+    $check_hostname = 'absent',
+    $check_port = '3306',
     $check_username = 'nagios',
     $check_password = '',
+    $check_database = 'absent',
     $check_mode = 'tcp'
 ){
+    if ($check_hostname == 'absent') {
+        fail("Please specify a hostname, ip address or socket to check a mysql instance.")
+    }
 
     case $check_mode {
-        # Check MySQL using TCP
         'tcp': {
-            nagios::service { 'mysql_tcp':
-                ensure => $ensure,
-                check_command => "check_mysql_tcp!${check_hostname}!${check_username}!${check_password}",
+            if ($check_hostname == 'localhost') {
+               $real_check_hostname = '127.0.0.1'
+            }
+            else {
+              $real_check_hostname = $check_hostname
             }
         }
-        # Check MySQL using local socket
         default: {
-            nagios::service { 'mysql_socket':
-                ensure => $ensure,
-                check_command => $check_socket ? {
-                    'absent' => "check_mysql!${check_username}!${check_password}!${check_database}",
-                    default => "check_mysql_socket!${check_socket}!${check_username}!${check_password}",
-                },
+            if ($check_hostname == '127.0.0.1') {
+                $real_check_hostname = 'localhost'
+            }
+             else {
+              $real_check_hostname = $check_hostname
             }
         }
     }
+
+    if ($check_database == 'absent') {
+        nagios::service { 'mysql':
+            ensure        => $ensure,
+            check_command => "check_mysql!${real_check_hostname}!${check_port}!${check_username}!${check_password}",
+        }
+    }
+    else {
+        nagios::service { "mysql_${check_database}":
+            ensure        => $ensure,
+            check_command => "check_mysql_db!${real_check_hostname}!${check_port}!${check_username}!${check_password}!${check_database}",
+        }
+    }
+
 }
