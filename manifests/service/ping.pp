@@ -6,7 +6,7 @@ define nagios::service::ping(
         default => $nagios_ping_rate
     }
 
-    nagios::service{ "check_ping_${hostname}":
+    nagios::service{ "check_ping":
         ensure => $ensure,
         check_command => "check_ping${real_nagios_ping_rate}",
     }

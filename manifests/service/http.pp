@@ -16,13 +16,13 @@ define nagios::service::http(
     }
     case $ssl_mode {
         'force',true,'only': {
-            nagios::service{"https_${name}_${check_code}_${hostname}":
+            nagios::service{"https_${name}_${check_code}":
                 ensure => $ensure,
                 check_command => "check_https_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
             }
             case $ssl_mode {
                 'force': {
-                    nagios::service{"httprd_${name}_${hostname}":
+                    nagios::service{"httprd_${name}":
                         ensure => $ensure,
                         check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'301'",
                     }
@@ -32,7 +32,7 @@ define nagios::service::http(
     }
     case $ssl_mode {
         false,true: {
-            nagios::service{"http_${name}_${check_code}_${hostname}":
+            nagios::service{"http_${name}_${check_code}":
                 ensure => $ensure,
                 check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
             }
