@@ -162,7 +162,7 @@ class nagios::base {
     }
 
     if $use_munin {
-        include munin::plugins::nagios
+        include nagios::munin
     }
 
 }
