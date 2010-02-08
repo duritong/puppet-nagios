@@ -15,6 +15,7 @@ class nagios::nsca::server {
     owner  => 'nagios',
     group  => 'nogroup',
     mode   => '400',
+    notify => Service['nsca'],
   }
   
 }
