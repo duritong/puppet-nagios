@@ -3,6 +3,8 @@ class nagios::defaults::commands {
     # common service commands
 
     nagios_command {
+        check_dummy:
+            command_line => '$USER1$/check_dummy $ARG1$';
         check_ping:
             command_line => '$USER1$/check_ping -H $HOSTADDRESS$ -w $ARG1$ -c $ARG2$';
         check-host-alive:
