@@ -7,8 +7,6 @@ class nagios::defaults::commands {
         nagios_command {
           check_dummy:
             command_line => '$USER1$/check_dummy $ARG1$';
-          check-host-alive:
-            command_line => '$USER1$/check_ping -H $HOSTADDRESS$ -w 5000,100% -c 5000,100% -p 1';
           check_ssh_port:
             command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
           check_https_cert:
