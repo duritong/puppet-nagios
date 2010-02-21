@@ -7,8 +7,6 @@ class nagios::defaults::commands {
         nagios_command {
           check_dummy:
             command_line => '$USER1$/check_dummy $ARG1$';
-          check_ssh_port:
-            command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
           check_https_cert:
             command_line => '$USER1$/check_http --ssl -C 20 -H $HOSTADDRESS$ -I $HOSTADDRESS$';
           check_http_url:
