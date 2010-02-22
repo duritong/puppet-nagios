@@ -32,7 +32,7 @@ This just creates a host declaration for this host's "$ipaddress" fact. If
 the $ipaddress of your target is not the one you wish to modify, you can use
 "nagios::target::fqdn" instead, which will use the $fqdn fact of the host instead.
 
-Set the $nagios_parent variable in the node scope for enabling the reachability
+Set the $nagios_parents variable in the node scope for enabling the reachability
 features of nagios. If a node needs more customisation, use the
 native "@@nagios_host" type directly (the double-ampersand declares the object
 as an exported resource).
@@ -159,8 +159,8 @@ $HOSTADDRESS$'
 
 node target {
 
-	# Monitor this host
-	$nagios_parent = 'router01'
+	# Monitor th () is host
+	$nagios_parents = 'router01'
 	include nagios::target
 
 	# monitor a service
