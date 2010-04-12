@@ -54,7 +54,8 @@ class nagios::base {
 
     file { 'nagios_private_resource_cfg':
         path => "${nagios_cfgdir}/private/resource.cfg",
-        source => "puppet://$server/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
+        source => [ "puppet://$server/modules/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
+                    "puppet://$server/modules/site-nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}" ],
         notify => Service['nagios'],
         owner => root, group => nagios, mode => '0640';
     }
