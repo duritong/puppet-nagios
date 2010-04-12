@@ -12,7 +12,10 @@ In it's current form, this module can be used on CentOS and Debian.
 Overview
 ========
 
-To use the nagios resources, activate storeconfigs on the puppetmaster.
+To use the nagios resources, activate storeconfigs on the
+puppetmaster.
+
+You need to be running verison 0.25 or later of puppet. 
 
 
 Monitor
