@@ -84,50 +84,62 @@ class nagios::base {
 
     Nagios_command <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_command.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_contact <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_contact.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_contactgroup <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_contactgroup.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_host <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_host.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_hostextinfo <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_hostextinfo.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_hostgroup <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_hostgroup.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_hostgroupescalation <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_hostgroupescalation.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_service <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_service.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_servicedependency <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_servicedependency.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_serviceescalation <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_serviceescalation.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_serviceextinfo <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_serviceextinfo.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
     Nagios_timeperiod <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_timeperiod.cfg",
+        require => File['nagios_confd'],
         notify => Service['nagios'],
     }
 
