@@ -81,6 +81,7 @@ class nagios::base {
     Nagios_serviceescalation <<||>>
     Nagios_serviceextinfo <<||>>
     Nagios_timeperiod <<||>>
+    Nagios::Plugin <<||>>
 
     Nagios_command <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_command.cfg",

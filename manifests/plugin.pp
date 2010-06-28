@@ -1,4 +1,5 @@
 define nagios::plugin(
+    $source = 'absent',
     $ensure = present
 ){
   file{$name:
@@ -7,7 +8,10 @@ define nagios::plugin(
       default => "/usr/lib/nagios/plugins/$name",
     },
     ensure => $ensure,
-    source => "puppet://$server/modules/nagios/plugins/$name",
+    source => $source ? {
+      'absent' => "puppet://$server/modules/nagios/plugins/$name",
+      default => "puppet://$server/modules/$source"
+    },
     require => Package['nagios-plugins'],
     owner => root, group => 0, mode => 0755;
   }
