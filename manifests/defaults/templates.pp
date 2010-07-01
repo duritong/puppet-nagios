@@ -1,7 +1,8 @@
 class nagios::defaults::templates {
+    include nagios::defaults::vars
 
     file { 'nagios_templates':
-            path => "${nagios_cfgdir}/conf.d/nagios_templates.cfg",
+            path => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_templates.cfg",
             source => [ "puppet://$server/modules/site-nagios/configs/${fqdn}/nagios_templates.cfg",
                         "puppet://$server/modules/site-nagios/configs/${operatingsystem}/nagios_templates.cfg",
                         "puppet://$server/modules/site-nagios/configs/nagios_templates.cfg",
