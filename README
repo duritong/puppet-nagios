@@ -12,7 +12,10 @@ In it's current form, this module can be used on CentOS and Debian.
 Overview
 ========
 
-To use the nagios resources, activate storeconfigs on the puppetmaster.
+To use the nagios resources, activate storeconfigs on the
+puppetmaster.
+
+You need to be running verison 0.25 or later of puppet. 
 
 
 Monitor
@@ -28,8 +31,11 @@ Hosts
 -----
 
 On a node which shall be monitored with nagios, include the "nagios::target".
-This just creates a host declaration for this hosts "$fqdn".
-Set the $nagios_parent variable in the node scope for enabling the reachability
+This just creates a host declaration for this host's "$ipaddress" fact. If
+the $ipaddress of your target is not the one you wish to modify, you can use
+"nagios::target::fqdn" instead, which will use the $fqdn fact of the host instead.
+
+Set the $nagios_parents variable in the node scope for enabling the reachability
 features of nagios. If a node needs more customisation, use the
 native "@@nagios_host" type directly (the double-ampersand declares the object
 as an exported resource).
@@ -59,6 +65,25 @@ Obviously, the check command must either be defined using nagios_command objects
 (some are supplied in nagios::defaults::commands) or in the nagios configuration
 files directly.
 
+
+Upgrade Notes
+=============
+
+The nagios::target bits have been reworked, the notable changes that
+may affect an upgrade are:
+
+. previous versions had nagios::target::nat which used the $fqdn for
+the address part of nagios::target, this has been renamed to
+nagios::target::fqdn to be more clear. if you were using
+nagios::target::nat then you will need to change those references to
+::fqdn
+
+. previous versions of this module used $fqdn for the nagios::target
+address, now it is using $ipaddress. If you need $fqdn, use
+nagios::target::fqdn instead of nagios::target
+
+. previous versions of nagios_host used the parameter named 'ip', that
+has been changed to 'address'
 
 Caveats
 =======
@@ -137,8 +162,8 @@ $HOSTADDRESS$'
 
 node target {
 
-	# Monitor this host
-	$nagios_parent = 'router01'
+	# Monitor th () is host
+	$nagios_parents = 'router01'
 	include nagios::target
 
 	# monitor a service
@@ -166,4 +191,6 @@ License
 
 Copyright (C) 2007 David Schmitt <david@schmitt.edv-bus.at>
 See the file LICENSE in the top directory for the full license.
+
+Copyright (C) 2010 Riseup Networks <micah@riseup.net>
 
