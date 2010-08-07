@@ -9,8 +9,8 @@ define nagios::plugin(
     },
     ensure => $ensure,
     source => $source ? {
-      'absent' => "puppet://$server/modules/nagios/plugins/$name",
-      default => "puppet://$server/modules/$source"
+      'absent' => "puppet:///modules/nagios/plugins/$name",
+      default => "puppet:///modules/$source"
     },
     tag => 'nagios_plugin',
     require => Package['nagios-plugins'],
