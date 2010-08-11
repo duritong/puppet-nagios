@@ -14,7 +14,7 @@ class nagios::debian inherits nagios::base {
 
     File['nagios_htpasswd', 'nagios_cgi_cfg'] { group => 'www-data' }
 
-    file { "${nagios_cfgdir}/stylesheets":
+    file { "${nagios::defaults::vars::int_nagios_cfgdir}/stylesheets":
         ensure => directory,
         purge => false,
         recurse => true,
