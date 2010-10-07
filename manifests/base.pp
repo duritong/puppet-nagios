@@ -69,7 +69,9 @@ class nagios::base {
         notify => Service['nagios'],
         mode => '0750', owner => root, group => nagios;
     }
-
+    Package <<| tag == 'nagios::plugin::deploy::package' |>>
+    File <<| tag == 'nagios::plugin::deploy::file' |>>
+    Nagios_plugin <<||>>
     Nagios_command <<||>>
     Nagios_contact <<||>>
     Nagios_contactgroup <<||>>
