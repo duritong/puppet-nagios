@@ -90,6 +90,10 @@ class nagios::defaults::commands {
         # from bind module
         check_dig2:
            command_line => '$USER1$/check_dig -H $HOSTADDRESS$ -l $ARG1$ --record_type=$ARG2$';
+
+        # from mysql module
+        check_mysql_health:
+           command_line => '$USER1$/check_mysql_health --hostname $ARG1$ --port $ARG2$ --username $ARG3$ --password $ARG4$ --mode $ARG5$ --database $ARG6$';
     }
 
     # notification commands

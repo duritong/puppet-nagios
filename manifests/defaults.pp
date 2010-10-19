@@ -8,5 +8,5 @@ class nagios::defaults {
     include nagios::defaults::hostgroups
     include nagios::defaults::templates
     include nagios::defaults::timeperiods
-
+    include nagios::defaults::plugins
 }
