@@ -49,8 +49,10 @@ class nagios::defaults::commands {
             command_line => '$USER1$/check_disk -w $ARG1$ -c $ARG2$ -e';
           check_ssh:
             command_line => '$USER1$/check_ssh $HOSTADDRESS$';
-          ssh_port:
+          check_ssh_port:
             command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
+          check_ssh_port_host:
+            command_line => '$USER1$/check_ssh -p $ARG1$ $ARG2$';
           check_http:
             command_line => '$USER1$/check_http -H $HOSTADDRESS$ -I $HOSTADDRESS$';
           check_https:
