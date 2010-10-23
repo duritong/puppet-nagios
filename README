@@ -213,6 +213,25 @@ Options to change the behavior of the nagios module:
                          'notice' if you would prefer them to be sent as IRC
                          NOTICE messages.
 
+PNP4Nagios integration
+======================
+Currently, there are no pnp4nagios debian packages - you need to install pnp4nagios 
+from source. See http://docs.pnp4nagios.org/pnp-0.6/start for installation notes.
+Integration in the nagios/icinga webinterface is configured by including either the 
+nagios::pnp4nagios or the nagios::pnp4nagios::popup class, the later one includes 
+fancy popups when you hoover over the extra service action image.
+For hosts you need to use the host-pnp definition, for services the srv-pnp def.
+i.e. 
+
+    @@nagios_service { "ping_example_node":
+        use => "generic-service,srv-pnp",
+        ...
+
+    nagios_host { 'example_node':
+            use => 'generic-host,host-pnp',
+            ...
+
+
 Examples
 ========
 
