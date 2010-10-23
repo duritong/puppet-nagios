@@ -14,4 +14,14 @@ class nagios::pnp4nagios {
          source => [ "puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-templates.cfg",
                      "puppet:///modules/nagios/pnp4nagios/pnp4nagios-templates.cfg"    ]
     }
+    
+    file { 'apache.conf':
+        path => "/etc/pnp4nagios/apache.conf",
+        source => [ "puppet:///modules/site-nagios/pnp4nagios/apache.conf",
+    		"puppet:///modules/nagios/configs/apache.conf"    	
+    	      ],
+	notify => Service['apache'],
+    }
+
+
 }
