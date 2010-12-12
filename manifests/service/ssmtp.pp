@@ -9,8 +9,6 @@ define nagios::service::ssmtp(
      default => $host
   }
 
-  include nagios::command::smtp
-
   nagios::service{
     "ssmtp_${name}_${port}":
       ensure => $ensure;

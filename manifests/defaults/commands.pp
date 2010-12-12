@@ -1,7 +1,8 @@
 class nagios::defaults::commands {
 
-    # common service commands
+  include nagios::command::smtp,
 
+  # common service commands
   case $operatingsystem {
       debian,ubuntu: {
         nagios_command {
