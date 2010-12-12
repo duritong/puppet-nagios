@@ -11,16 +11,25 @@ define nagios::service (
     $notification_options = '',
     $contact_groups = '',
     $use = 'generic-service',
-    $service_description = 'absent' )
+    $service_description = 'absent',
+    $use_nrpe = '',
+    $nrpe_args = '' )
 {
 
     # TODO: this resource should normally accept all nagios_host parameters
 
     $real_name = "${hostname}_${name}"
 
+    if ($use_nrpe == 'true') {
+	$real_check_command = "check_nrpe!$check_command!\"$nrpe_args\""
+    }
+    else { 
+	$real_check_command = "$check_command"
+    }
+
     @@nagios_service { "${real_name}":
         ensure => $ensure,
-        check_command => $check_command,
+        check_command => $real_check_command,
         host_name => $host_name,
         use => $use,
         notify => Service[nagios],

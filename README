@@ -51,9 +51,9 @@ Services
 
 Services can be monitored by using the "nagios::service" component.
 
-The simplest form is::
+The simplest form is:
 
-	nagios::service { 'check_http':
+    nagios::service { 'check_http':
         check_command => 'http_port!80',
     }
 
@@ -64,6 +64,16 @@ the service.
 Obviously, the check command must either be defined using nagios_command objects
 (some are supplied in nagios::defaults::commands) or in the nagios configuration
 files directly.
+
+NRPE Services 
+-------------
+
+NRPE Services can be defines as i.e.:
+
+    nagios::service { 'CPU Usage': use_nrpe => 'true', 
+	check_command => "check_cpu", 
+	nrpe_args => "-t 60"
+    }
 
 
 Upgrade Notes
