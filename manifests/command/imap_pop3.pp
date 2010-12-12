@@ -8,5 +8,7 @@ class nagios::command::imap_pop3 {
       command_line => '$USER1$/check_pop -H $ARG1$ -p $ARG2$ -S';
     'check_pop3_ssl':
       command_line => '$USER1$/check_pop -H $ARG1$ -p $ARG2$ -S';
+    'check_managesieve':
+      command_line => '$USER1$/check_tcp -H $ARG1$ -p 2000';
   }
 }
