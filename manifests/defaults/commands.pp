@@ -1,6 +1,6 @@
 class nagios::defaults::commands {
 
-  include nagios::command::smtp,
+  include nagios::command::smtp
 
   # common service commands
   case $operatingsystem {
