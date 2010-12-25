@@ -22,11 +22,11 @@ define nagios::service::mysql(
   }
 
   if $check_warning != undef {
-    $real_check_warning = "--warning $check_warning"
+    $real_check_warning = "!--warning $check_warning"
   }
   
   if $check_critical != undef {
-    $real_check_critical = "--critical $check_critical"
+    $real_check_critical = "!--critical $check_critical"
   }
     
   case $check_mode {
@@ -50,6 +50,6 @@ define nagios::service::mysql(
   
   nagios::service { "mysql_health_${name}":
     ensure        => $ensure,
-    check_command => "check_mysql_health!${real_check_host}!${check_port}!${check_username}!${check_password}!${name}!${check_database}!${real_check_warning}!${real_check_critical}",
+    check_command => "check_mysql_health!${real_check_host}!${check_port}!${check_username}!${check_password}!${name}!${check_database}${real_check_warning}${real_check_critical}",
   }
 }
