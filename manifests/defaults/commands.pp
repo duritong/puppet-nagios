@@ -93,7 +93,7 @@ class nagios::defaults::commands {
 
         # from mysql module
         check_mysql_health:
-           command_line => '$USER1$/check_mysql_health --hostname $ARG1$ --port $ARG2$ --username $ARG3$ --password $ARG4$ --mode $ARG5$ --database $ARG6$';
+           command_line => '$USER1$/check_mysql_health --hostname $ARG1$ --port $ARG2$ --username $ARG3$ --password $ARG4$ --mode $ARG5$ --database $ARG6$ $ARG7$ $ARG8$';
     }
 
     # notification commands
