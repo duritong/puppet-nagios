@@ -123,6 +123,15 @@ sub init {
       $self->{log_waits_rate} =
           $self->{delta_log_waits} / $self->{delta_timestamp};
     }
+  } elsif ($params{mode} =~ /server::instance::innodb::needoptimize/) {
+#fragmentation=$(($datafree * 100 / $datalength))
+
+#http://www.electrictoolbox.com/optimize-tables-mysql-php/
+    my  @result = $self->{handle}->fetchall_array(q{
+SHOW TABLE STATUS WHERE Data_free / Data_length > 0.1 AND Data_free > 102400
+});
+printf "%s\n", Data::Dumper::Dumper(\@result);
+
   }
 }
 
@@ -468,6 +477,35 @@ sub init {
     ($dummy, $self->{threads_connected}) = $self->{handle}->fetchrow_array(q{
         SHOW /*!50000 global */ STATUS LIKE 'Threads_connected'
     });
+  } elsif ($params{mode} =~ /server::instance::createdthreads/) {
+    ($dummy, $self->{threads_created}) = $self->{handle}->fetchrow_array(q{
+        SHOW /*!50000 global */ STATUS LIKE 'Threads_created'
+    });
+    $self->valdiff(\%params, qw(threads_created));
+    $self->{threads_created_per_sec} = $self->{delta_threads_created} /
+        $self->{delta_timestamp};
+  } elsif ($params{mode} =~ /server::instance::runningthreads/) {
+    ($dummy, $self->{threads_running}) = $self->{handle}->fetchrow_array(q{
+        SHOW /*!50000 global */ STATUS LIKE 'Threads_running'
+    });
+  } elsif ($params{mode} =~ /server::instance::cachedthreads/) {
+    ($dummy, $self->{threads_cached}) = $self->{handle}->fetchrow_array(q{
+        SHOW /*!50000 global */ STATUS LIKE 'Threads_cached'
+    });
+  } elsif ($params{mode} =~ /server::instance::abortedconnects/) {
+    ($dummy, $self->{connects_aborted}) = $self->{handle}->fetchrow_array(q{
+        SHOW /*!50000 global */ STATUS LIKE 'Aborted_connects'
+    });
+    $self->valdiff(\%params, qw(connects_aborted));
+    $self->{connects_aborted_per_sec} = $self->{delta_connects_aborted} /
+        $self->{delta_timestamp};
+  } elsif ($params{mode} =~ /server::instance::abortedclients/) {
+    ($dummy, $self->{clients_aborted}) = $self->{handle}->fetchrow_array(q{
+        SHOW /*!50000 global */ STATUS LIKE 'Aborted_clients'
+    });
+    $self->valdiff(\%params, qw(clients_aborted));
+    $self->{clients_aborted_per_sec} = $self->{delta_clients_aborted} /
+        $self->{delta_timestamp};
   } elsif ($params{mode} =~ /server::instance::threadcachehitrate/) {
     ($dummy, $self->{threads_created}) = $self->{handle}->fetchrow_array(q{
         SHOW /*!50000 global */ STATUS LIKE 'Threads_created'
@@ -629,22 +667,26 @@ sub init {
     $self->valdiff(\%params, qw(handler_read_first handler_read_key
         handler_read_next handler_read_prev handler_read_rnd
         handler_read_rnd_next));
-    $self->{index_usage_now} = 100 - (100.0 * ($self->{delta_handler_read_rnd} +
-        $self->{delta_handler_read_rnd_next}) /
-        ($self->{delta_handler_read_first} +
-        $self->{delta_handler_read_key} + 
+    my $delta_reads = $self->{delta_handler_read_first} +
+        $self->{delta_handler_read_key} +
         $self->{delta_handler_read_next} +
-        $self->{delta_handler_read_prev} + 
-        $self->{delta_handler_read_rnd} + 
-        $self->{delta_handler_read_rnd_next}));
-    $self->{index_usage} = 100 - (100.0 * ($self->{handler_read_rnd} +
-        $self->{handler_read_rnd_next}) /
-        ($self->{handler_read_first} +
-        $self->{handler_read_key} + 
+        $self->{delta_handler_read_prev} +
+        $self->{delta_handler_read_rnd} +
+        $self->{delta_handler_read_rnd_next};
+    my $reads = $self->{handler_read_first} +
+        $self->{handler_read_key} +
         $self->{handler_read_next} +
-        $self->{handler_read_prev} + 
-        $self->{handler_read_rnd} + 
-        $self->{handler_read_rnd_next}));
+        $self->{handler_read_prev} +
+        $self->{handler_read_rnd} +
+        $self->{handler_read_rnd_next};
+    $self->{index_usage_now} = ($delta_reads == 0) ? 0 :
+        100 - (100.0 * ($self->{delta_handler_read_rnd} +
+        $self->{delta_handler_read_rnd_next}) /
+        $delta_reads);
+    $self->{index_usage} = ($reads == 0) ? 0 :
+        100 - (100.0 * ($self->{handler_read_rnd} +
+        $self->{handler_read_rnd_next}) /
+        $reads);
   } elsif ($params{mode} =~ /server::instance::tabletmpondisk/) {
     ($dummy, $self->{created_tmp_tables}) = $self->{handle}->fetchrow_array(q{
         SHOW /*!50000 global */ STATUS LIKE 'Created_tmp_tables'
@@ -667,6 +709,20 @@ sub init {
         SHOW /*!50000 global */ STATUS LIKE 'Open_files'
     });
     $self->{pct_open_files} = 100 * $self->{open_files} / $self->{open_files_limit};
+  } elsif ($params{mode} =~ /server::instance::needoptimize/) {
+    $self->{fragmented} = [];
+    #http://www.electrictoolbox.com/optimize-tables-mysql-php/
+    my  @result = $self->{handle}->fetchall_array(q{
+        SHOW TABLE STATUS
+    });
+    foreach (@result) {
+      my ($name, $engine, $data_length, $data_free) =
+          ($_->[0], $_->[1], $_->[6 ], $_->[9]);
+      next if ($params{name} && $params{name} ne $name);
+      my $fragmentation = $data_length ? $data_free * 100 / $data_length : 0;
+      push(@{$self->{fragmented}},
+          [$name, $fragmentation, $data_length, $data_free]);
+    }
   } elsif ($params{mode} =~ /server::instance::myisam/) {
     $self->{engine_myisam} = DBD::MySQL::Server::Instance::MyISAM->new(
         %params
@@ -692,6 +748,41 @@ sub nagios {
           sprintf "%d client connection threads", $self->{threads_connected});
       $self->add_perfdata(sprintf "threads_connected=%d;%d;%d",
           $self->{threads_connected},
+          $self->{warningrange}, $self->{criticalrange});
+    } elsif ($params{mode} =~ /server::instance::createdthreads/) {
+      $self->add_nagios(
+          $self->check_thresholds($self->{threads_created_per_sec}, 10, 20),
+          sprintf "%.2f threads created/sec", $self->{threads_created_per_sec});
+      $self->add_perfdata(sprintf "threads_created_per_sec=%.2f;%.2f;%.2f",
+          $self->{threads_created_per_sec},
+          $self->{warningrange}, $self->{criticalrange});
+    } elsif ($params{mode} =~ /server::instance::runningthreads/) {
+      $self->add_nagios(
+          $self->check_thresholds($self->{threads_running}, 10, 20),
+          sprintf "%d running threads", $self->{threads_running});
+      $self->add_perfdata(sprintf "threads_running=%d;%d;%d",
+          $self->{threads_running},
+          $self->{warningrange}, $self->{criticalrange});
+    } elsif ($params{mode} =~ /server::instance::cachedthreads/) {
+      $self->add_nagios(
+          $self->check_thresholds($self->{threads_cached}, 10, 20),
+          sprintf "%d cached threads", $self->{threads_cached});
+      $self->add_perfdata(sprintf "threads_cached=%d;%d;%d",
+          $self->{threads_cached},
+          $self->{warningrange}, $self->{criticalrange});
+    } elsif ($params{mode} =~ /server::instance::abortedconnects/) {
+      $self->add_nagios(
+          $self->check_thresholds($self->{connects_aborted_per_sec}, 1, 5),
+          sprintf "%.2f aborted connections/sec", $self->{connects_aborted_per_sec});
+      $self->add_perfdata(sprintf "connects_aborted_per_sec=%.2f;%.2f;%.2f",
+          $self->{connects_aborted_per_sec},
+          $self->{warningrange}, $self->{criticalrange});
+    } elsif ($params{mode} =~ /server::instance::abortedclients/) {
+      $self->add_nagios(
+          $self->check_thresholds($self->{clients_aborted_per_sec}, 1, 5),
+          sprintf "%.2f aborted (client died) connections/sec", $self->{clients_aborted_per_sec});
+      $self->add_perfdata(sprintf "clients_aborted_per_sec=%.2f;%.2f;%.2f",
+          $self->{clients_aborted_per_sec},
           $self->{warningrange}, $self->{criticalrange});
     } elsif ($params{mode} =~ /server::instance::threadcachehitrate/) {
       my $refkey = 'threadcache_hitrate'.($params{lookback} ? '_now' : '');
@@ -776,7 +867,7 @@ sub nagios {
         $self->check_thresholds($self->{$refkey}, "1", "2");
         $self->add_nagios_ok(
             sprintf "table lock contention %.2f%% (uptime < 10800)",
-            $self->{refkey});
+            $self->{$refkey});
       }
       $self->add_perfdata(sprintf "tablelock_contention=%.2f%%;%s;%s",
           $self->{table_lock_contention},
@@ -818,6 +909,16 @@ sub nagios {
           $self->{open_files},
           $self->{open_files_limit} * $self->{warningrange} / 100,
           $self->{open_files_limit} * $self->{criticalrange} / 100);
+    } elsif ($params{mode} =~ /server::instance::needoptimize/) {
+      foreach (@{$self->{fragmented}}) {
+        $self->add_nagios(
+            $self->check_thresholds($_->[1], 10, 25),
+            sprintf "table %s is %.2f%% fragmented", $_->[0], $_->[1]);
+        if ($params{name}) {
+          $self->add_perfdata(sprintf "'%s_frag'=%.2f%%;%d;%d",
+              $_->[0], $_->[1], $self->{warningrange}, $self->{criticalrange});
+        }
+      }
     } elsif ($params{mode} =~ /server::instance::myisam/) {
       $self->{engine_myisam}->nagios(%params);
       $self->merge_nagios($self->{engine_myisam});
@@ -879,6 +980,8 @@ sub new {
     timeout => $params{timeout},
     warningrange => $params{warningrange},
     criticalrange => $params{criticalrange},
+    verbose => $params{verbose},
+    report => $params{report},
     version => 'unknown',
     instance => undef,
     handle => undef,
@@ -905,17 +1008,30 @@ sub init {
   my %params = @_;
   $params{handle} = $self->{handle};
   $params{uptime} = $self->{uptime};
+  $self->set_global_db_thresholds(\%params);
   if ($params{mode} =~ /^server::instance/) {
     $self->{instance} = DBD::MySQL::Server::Instance->new(%params);
   } elsif ($params{mode} =~ /^server::sql/) {
-    $self->{genericsql} = $self->{handle}->fetchrow_array($params{selectname});
-    if ($self->{genericsql} =~ /^\s*\d+\s*$/) {
-      $self->{genericsql} = sprintf "%d", $self->{genericsql};
-    } elsif ($self->{genericsql} =~ /^\s*\d*\.\d+\s*$/) {
-      $self->{genericsql} = sprintf "%.2f", $self->{genericsql};
+    $self->set_local_db_thresholds(%params);
+    if ($params{name2} && $params{name2} ne $params{name}) {
+      $self->{genericsql} =
+          $self->{handle}->fetchrow_array($params{selectname});
+      if (! defined $self->{genericsql}) {
+        $self->add_nagios_unknown(sprintf "got no valid response for %s",
+            $params{selectname});
+      }
     } else {
-      $self->add_nagios_unknown(sprintf "got no valid response for %s",
-          $params{selectname});
+      @{$self->{genericsql}} =
+          $self->{handle}->fetchrow_array($params{selectname});
+      if (! (defined $self->{genericsql} &&
+          (scalar(grep { /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/ } @{$self->{genericsql}})) ==
+          scalar(@{$self->{genericsql}}))) {
+        $self->add_nagios_unknown(sprintf "got no valid response for %s",
+            $params{selectname});
+      } else {
+        # name2 in array
+        # units in array
+      }
     }
   } elsif ($params{mode} =~ /^server::uptime/) {
     # already set with the connection. but use minutes here
@@ -1001,17 +1117,52 @@ sub nagios {
           $self->{connection_time},
           $self->{warningrange}, $self->{criticalrange});
     } elsif ($params{mode} =~ /^server::sql/) {
-      $self->add_nagios(
-          $self->check_thresholds($self->{genericsql}, 1, 5),
-            sprintf "%s: %s%s", 
-            $params{name2} ? lc $params{name2} : lc $params{selectname},
-            $self->{genericsql},
-            $params{units} ? $params{units} : "");
-      $self->add_perfdata(sprintf "\'%s\'=%s%s;%s;%s",
-          $params{name2} ? lc $params{name2} : lc $params{selectname},
-          $self->{genericsql},
-          $params{units} ? $params{units} : "",
-          $self->{warningrange}, $self->{criticalrange});
+      if ($params{name2} && $params{name2} ne $params{name}) {
+        if ($params{regexp}) {
+          if ($self->{genericsql} =~ /$params{name2}/) {
+            $self->add_nagios_ok(
+                sprintf "output %s matches pattern %s",
+                    $self->{genericsql}, $params{name2});
+          } else {
+            $self->add_nagios_critical(
+                sprintf "output %s does not match pattern %s",
+                    $self->{genericsql}, $params{name2});
+          }
+        } else {
+          if ($self->{genericsql} eq $params{name2}) {
+            $self->add_nagios_ok(
+                sprintf "output %s found", $self->{genericsql});
+          } else {
+            $self->add_nagios_critical(
+                sprintf "output %s not found", $self->{genericsql});
+          }
+        }
+      } else {
+        $self->add_nagios(
+            # the first item in the list will trigger the threshold values
+            $self->check_thresholds($self->{genericsql}[0], 1, 5),
+                sprintf "%s: %s%s",
+                $params{name2} ? lc $params{name2} : lc $params{selectname},
+                # float as float, integers as integers
+                join(" ", map {
+                    (sprintf("%d", $_) eq $_) ? $_ : sprintf("%f", $_)
+                } @{$self->{genericsql}}),
+                $params{units} ? $params{units} : "");
+        my $i = 0;
+        # workaround... getting the column names from the database would be nicer
+        my @names2_arr = split(/\s+/, $params{name2});
+        foreach my $t (@{$self->{genericsql}}) {
+          $self->add_perfdata(sprintf "\'%s\'=%s%s;%s;%s",
+              $names2_arr[$i] ? lc $names2_arr[$i] : lc $params{selectname},
+              # float as float, integers as integers
+              (sprintf("%d", $t) eq $t) ? $t : sprintf("%f", $t),
+              $params{units} ? $params{units} : "",
+            ($i == 0) ? $self->{warningrange} : "",
+              ($i == 0) ? $self->{criticalrange} : ""
+          );
+          $i++;
+        }
+      }
     } elsif ($params{mode} =~ /^my::([^:.]+)/) {
       $self->{my}->nagios(%params);
       $self->merge_nagios($self->{my});
@@ -1134,34 +1285,134 @@ sub merge_nagios {
   push(@{$self->{nagios}->{perfdata}}, @{$child->{nagios}->{perfdata}});
 }
 
-
 sub calculate_result {
   my $self = shift;
-  if ($ENV{NRPE_MULTILINESUPPORT} && 
+  my $multiline = 0;
+  map {
+    $self->{nagios_level} = $ERRORS{$_} if
+        (scalar(@{$self->{nagios}->{messages}->{$ERRORS{$_}}}));
+  } ("OK", "UNKNOWN", "WARNING", "CRITICAL");
+  if ($ENV{NRPE_MULTILINESUPPORT} &&
       length join(" ", @{$self->{nagios}->{perfdata}}) > 200) {
-    foreach my $level ("CRITICAL", "WARNING", "UNKNOWN", "OK") {
-      # first the bad news
-      if (scalar(@{$self->{nagios}->{messages}->{$ERRORS{$level}}})) {
-        $self->{nagios_message} .=
-            "\n".join("\n", @{$self->{nagios}->{messages}->{$ERRORS{$level}}});
-      }
-    }
-    $self->{nagios_message} =~ s/^\n//g;
-    $self->{perfdata} = join("\n", @{$self->{nagios}->{perfdata}});
-  } else {
-    foreach my $level ("CRITICAL", "WARNING", "UNKNOWN", "OK") {
-      # first the bad news
-      if (scalar(@{$self->{nagios}->{messages}->{$ERRORS{$level}}})) {
-        $self->{nagios_message} .= 
-            join(", ", @{$self->{nagios}->{messages}->{$ERRORS{$level}}}).", ";
-      }
-    }
-    $self->{nagios_message} =~ s/, $//g;
-    $self->{perfdata} = join(" ", @{$self->{nagios}->{perfdata}});
+    $multiline = 1;
   }
-  foreach my $level ("OK", "UNKNOWN", "WARNING", "CRITICAL") {
-    if (scalar(@{$self->{nagios}->{messages}->{$ERRORS{$level}}})) {
-      $self->{nagios_level} = $ERRORS{$level};
+  my $all_messages = join(($multiline ? "\n" : ", "), map {
+      join(($multiline ? "\n" : ", "), @{$self->{nagios}->{messages}->{$ERRORS{$_}}})
+  } grep {
+      scalar(@{$self->{nagios}->{messages}->{$ERRORS{$_}}})
+  } ("CRITICAL", "WARNING", "UNKNOWN", "OK"));
+  my $bad_messages = join(($multiline ? "\n" : ", "), map {
+      join(($multiline ? "\n" : ", "), @{$self->{nagios}->{messages}->{$ERRORS{$_}}})
+  } grep {
+      scalar(@{$self->{nagios}->{messages}->{$ERRORS{$_}}})
+  } ("CRITICAL", "WARNING", "UNKNOWN"));
+  my $all_messages_short = $bad_messages ? $bad_messages : 'no problems';
+  my $all_messages_html = "<table style=\"border-collapse: collapse;\">".
+      join("", map {
+          my $level = $_;
+          join("", map {
+              sprintf "<tr valign=\"top\"><td class=\"service%s\">%s</td></tr>",
+              $level, $_;
+          } @{$self->{nagios}->{messages}->{$ERRORS{$_}}});
+      } grep {
+          scalar(@{$self->{nagios}->{messages}->{$ERRORS{$_}}})
+      } ("CRITICAL", "WARNING", "UNKNOWN", "OK")).
+  "</table>";
+  if (exists $self->{identstring}) {
+    $self->{nagios_message} .= $self->{identstring};
+  }
+  if ($self->{report} eq "long") {
+    $self->{nagios_message} .= $all_messages;
+  } elsif ($self->{report} eq "short") {
+    $self->{nagios_message} .= $all_messages_short;
+  } elsif ($self->{report} eq "html") {
+    $self->{nagios_message} .= $all_messages_short."\n".$all_messages_html;
+  }
+  $self->{perfdata} = join(" ", @{$self->{nagios}->{perfdata}});
+}
+
+sub set_global_db_thresholds {
+  my $self = shift;
+  my $params = shift;
+  my $warning = undef;
+  my $critical = undef;
+  return unless defined $params->{dbthresholds};
+  $params->{name0} = $params->{dbthresholds};
+  # :pluginmode   :name     :warning    :critical
+  # mode          empty     
+  # 
+  eval {
+    if ($self->{handle}->fetchrow_array(q{
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = ?
+        AND table_name = 'CHECK_MYSQL_HEALTH_THRESHOLDS';
+      }, $self->{database})) { # either --database... or information_schema
+      my @dbthresholds = $self->{handle}->fetchall_array(q{
+          SELECT * FROM check_mysql_health_thresholds
+      });
+      $params->{dbthresholds} = \@dbthresholds;
+      foreach (@dbthresholds) { 
+        if (($_->[0] eq $params->{cmdlinemode}) &&
+            (! defined $_->[1] || ! $_->[1])) {
+          ($warning, $critical) = ($_->[2], $_->[3]);
+        }
+      }
+    }
+  };
+  if (! $@) {
+    if ($warning) {
+      $params->{warningrange} = $warning;
+      $self->trace("read warningthreshold %s from database", $warning);
+    }
+    if ($critical) {
+      $params->{criticalrange} = $critical;
+      $self->trace("read criticalthreshold %s from database", $critical);
+    }
+  }
+}
+
+sub set_local_db_thresholds {
+  my $self = shift;
+  my %params = @_;
+  my $warning = undef;
+  my $critical = undef;
+  # :pluginmode   :name     :warning    :critical
+  # mode          name0
+  # mode          name2
+  # mode          name
+  #
+  # first: argument of --dbthresholds, it it exists
+  # second: --name2
+  # third: --name
+  if (ref($params{dbthresholds}) eq 'ARRAY') {
+    my $marker;
+    foreach (@{$params{dbthresholds}}) {
+      if ($_->[0] eq $params{cmdlinemode}) {
+        if (defined $_->[1] && $params{name0} && $_->[1] eq $params{name0}) {
+          ($warning, $critical) = ($_->[2], $_->[3]);
+          $marker = $params{name0};
+          last;
+        } elsif (defined $_->[1] && $params{name2} && $_->[1] eq $params{name2}) {
+          ($warning, $critical) = ($_->[2], $_->[3]);
+          $marker = $params{name2};
+          last;
+        } elsif (defined $_->[1] && $params{name} && $_->[1] eq $params{name}) {
+          ($warning, $critical) = ($_->[2], $_->[3]);
+          $marker = $params{name};
+          last;
+        }
+      }
+    }
+    if ($warning) {
+      $self->{warningrange} = $warning;
+      $self->trace("read warningthreshold %s for %s from database",
+         $marker, $warning);
+    }
+    if ($critical) {
+      $self->{criticalrange} = $critical;
+      $self->trace("read criticalthreshold %s for %s from database",
+          $marker, $critical);
     }
   }
 }
@@ -2871,7 +3122,7 @@ use lib dirname($0);
 use vars qw ($PROGNAME $REVISION $CONTACT $TIMEOUT $STATEFILESDIR $needs_restart %commandline);
 
 $PROGNAME = "check_mysql_health";
-$REVISION = '$Revision: 2.1.3 $';
+$REVISION = '$Revision: 2.1.5 $';
 $CONTACT = 'gerhard.lausser@consol.de';
 $TIMEOUT = 60;
 $STATEFILESDIR = '/var/run';
@@ -2890,6 +3141,21 @@ my @modes = (
   ['server::instance::threadcachehitrate',
       'threadcache-hitrate', undef,
       'Hit rate of the thread-cache' ],
+  ['server::instance::createdthreads',
+      'threads-created', undef,
+      'Number of threads created per sec' ],
+  ['server::instance::runningthreads',
+      'threads-running', undef,
+      'Number of currently running threads' ],
+  ['server::instance::cachedthreads',
+      'threads-cached', undef,
+      'Number of currently cached threads' ],
+  ['server::instance::abortedconnects',
+      'connects-aborted', undef,
+      'Number of aborted connections per sec' ],
+  ['server::instance::abortedclients',
+      'clients-aborted', undef,
+      'Number of aborted connections (because the client died) per sec' ],
   ['server::instance::replication::slavelag',
       'slave-lag', ['replication-slave-lag'],
       'Seconds behind master' ],
@@ -2929,6 +3195,9 @@ my @modes = (
   ['server::instance::tabletmpondisk',
       'tmp-disk-tables', undef,
       'Percent of temp tables created on disk' ],
+  ['server::instance::needoptimize',
+      'table-fragmentation', undef,
+      'Show tables which should be optimized' ],
   ['server::instance::openfiles',
       'open-files', undef,
       'Percent of opened files' ],
@@ -3076,6 +3345,7 @@ my @params = (
     "perfdata",
     "warning=s",
     "critical=s",
+    "dbthresholds:s",
     "absolute|a",
     "environment|e=s%",
     "method=s",
@@ -3088,6 +3358,7 @@ my @params = (
     "lookback=i",
     "3",
     "with-mymodules-dyn-dir=s",
+    "report=s",
     "extra-opts:s");
 
 if (! GetOptions(\%commandline, @params)) {
@@ -3151,11 +3422,16 @@ if (exists $commandline{method}) {
   $commandline{method} = "dbi";
 }
 
-if (exists $commandline{'with-mymodules-dyn-dir'}) {
-  $DBD::MYSQL::Server::my_modules_dyn_dir = $commandline{'with-mymodules-dyn-dir
-'};
+if (exists $commandline{report}) {
+  # short, long, html
 } else {
-  $DBD::MYSQL::Server::my_modules_dyn_dir = '/usr/local/nagios/libexec';
+  $commandline{report} = "long";
+}
+
+if (exists $commandline{'with-mymodules-dyn-dir'}) {
+  $DBD::MySQL::Server::my_modules_dyn_dir = $commandline{'with-mymodules-dyn-dir'};
+} else {
+  $DBD::MySQL::Server::my_modules_dyn_dir = '/usr/local/nagios/libexec';
 }
 
 if (exists $commandline{environment}) {
@@ -3267,16 +3543,16 @@ if ($commandline{mode} =~ /^my-([^\-.]+)/) {
   exit 3;
 }
 
-$commandline{mode} = (
-    map { $_->[0] }
-    grep {
-       ($commandline{mode} eq $_->[1]) ||
-       ( defined $_->[2] && grep { $commandline{mode} eq $_ } @{$_->[2]})
-    } @modes
-)[0];
 my %params = (
     timeout => $TIMEOUT,
-    mode => $commandline{mode},
+    mode => (
+        map { $_->[0] }
+        grep {
+           ($commandline{mode} eq $_->[1]) ||
+           ( defined $_->[2] && grep { $commandline{mode} eq $_ } @{$_->[2]})
+        } @modes
+    )[0],
+    cmdlinemode => $commandline{mode},
     method => $commandline{method} ||
         $ENV{NAGIOS__SERVICEMYSQL_METH} ||
         $ENV{NAGIOS__HOSTMYSQL_METH} || 'dbi',
@@ -3300,6 +3576,7 @@ my %params = (
         $ENV{NAGIOS__HOSTMYSQL_PASS},
     warningrange => $commandline{warning},
     criticalrange => $commandline{critical},
+    dbthresholds => $commandline{dbthresholds},
     absolute => $commandline{absolute},
     lookback => $commandline{lookback},
     selectname => $commandline{name} || $commandline{tablespace} || $commandline{datafile},
@@ -3310,6 +3587,8 @@ my %params = (
     lookback => $commandline{lookback} || 0,
     eyecandy => $commandline{eyecandy},
     statefilesdir => $STATEFILESDIR,
+    verbose => $commandline{verbose},
+    report => $commandline{report},
 );
 
 my $server = undef;
