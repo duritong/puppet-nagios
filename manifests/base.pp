@@ -73,10 +73,13 @@ class nagios::base {
     Nagios_contact <<||>>
     Nagios_contactgroup <<||>>
     Nagios_host <<||>>
+    Nagios_hostdependency <<||>>
+    Nagios_hostescalation <<||>>
     Nagios_hostextinfo <<||>>
     Nagios_hostgroup <<||>>
     Nagios_hostgroupescalation <<||>>
     Nagios_service <<||>>
+    Nagios_servicegroup <<||>>
     Nagios_servicedependency <<||>>
     Nagios_serviceescalation <<||>>
     Nagios_serviceextinfo <<||>>
@@ -98,6 +101,14 @@ class nagios::base {
         target => "${nagios_cfgdir}/conf.d/nagios_host.cfg",
         notify => Service['nagios'],
     }
+    Nagios_hostdependency <||> {
+        target => "${nagios_cfgdir}/conf.d/nagios_hostdependency.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_hostescalation <||> {
+        target => "${nagios_cfgdir}/conf.d/nagios_hostescalation.cfg",
+        notify => Service['nagios'],
+    }
     Nagios_hostextinfo <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_hostextinfo.cfg",
         notify => Service['nagios'],
@@ -112,6 +123,10 @@ class nagios::base {
     }
     Nagios_service <||> {
         target => "${nagios_cfgdir}/conf.d/nagios_service.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_servicegroup <||> {
+        target => "${nagios_cfgdir}/conf.d/nagios_servicegroup.cfg",
         notify => Service['nagios'],
     }
     Nagios_servicedependency <||> {
@@ -131,14 +146,17 @@ class nagios::base {
         notify => Service['nagios'],
     }
 
-    file{[ "${nagios_cfgdir}/conf.d/nagios_command.cfg", 
-           "${nagios_cfgdir}/conf.d/nagios_contact.cfg", 
+    file{[ "${nagios_cfgdir}/conf.d/nagios_command.cfg",
+           "${nagios_cfgdir}/conf.d/nagios_contact.cfg",
            "${nagios_cfgdir}/conf.d/nagios_contactgroup.cfg",
            "${nagios_cfgdir}/conf.d/nagios_host.cfg",
+           "${nagios_cfgdir}/conf.d/nagios_hostdependency.cfg",
+           "${nagios_cfgdir}/conf.d/nagios_hostescalation.cfg",
            "${nagios_cfgdir}/conf.d/nagios_hostextinfo.cfg",
            "${nagios_cfgdir}/conf.d/nagios_hostgroup.cfg",
            "${nagios_cfgdir}/conf.d/nagios_hostgroupescalation.cfg",
            "${nagios_cfgdir}/conf.d/nagios_service.cfg",
+           "${nagios_cfgdir}/conf.d/nagios_servicegroup.cfg",
            "${nagios_cfgdir}/conf.d/nagios_servicedependency.cfg",
            "${nagios_cfgdir}/conf.d/nagios_serviceescalation.cfg",
            "${nagios_cfgdir}/conf.d/nagios_serviceextinfo.cfg",
