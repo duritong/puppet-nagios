@@ -18,6 +18,12 @@ define nagios::nrpe::command (
                     require => File [ "$nagios_nrpe_cfgdir/nrpe.d" ]
     }
 
+    if $operatingsystem == 'freebsd' {
+        File["$nagios_nrpe_cfgdir/nrpe.d/${name}_command.cfg"] {
+            group => wheel,
+        }
+    }
+
     case $source {
         '': {
              File["$nagios_nrpe_cfgdir/nrpe.d/${name}_command.cfg"] {
