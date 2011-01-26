@@ -16,7 +16,7 @@ SOCKFILE=<%= nagios_nsa_socket %>
 
 start() {
 	log_daemon_msg "Starting nagios IRC bot" "nagios-nsa"
-        if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --user nagios --exec /usr/local/bin/riseup-nagios-server.pl; then
+        if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --user nagios --chuid nagios --exec /usr/local/bin/riseup-nagios-server.pl; then
             log_end_msg 0
         else
             log_end_msg 1
@@ -25,7 +25,7 @@ start() {
 
 stop () {
 	log_daemon_msg "Stopping nagios IRC bot" "nagios-nsa"
-        if start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE; then
+        if start-stop-daemon --stop --quiet --pidfile $PIDFILE; then
             log_end_msg 0
         else
             log_end_msg 1
