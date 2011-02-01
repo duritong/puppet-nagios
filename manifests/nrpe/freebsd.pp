@@ -7,4 +7,9 @@ class nagios::nrpe::freebsd inherits nagios::nrpe::base {
 
     # TODO check_cpustats.sh is probably not working as of now. the package 'sysstat' is not available under FreeBSD
 
+    Service["nagios-nrpe-server"] {
+        pattern => undef,
+        path => "/usr/local/etc/rc.d",
+        name => "nrpe2",
+    }
 }

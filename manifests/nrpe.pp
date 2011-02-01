@@ -1,7 +1,7 @@
 class nagios::nrpe {
 
     case $operatingsystem {
-        'freebsd': {
+        'FreeBSD': {
             if $nagios_nrpe_cfgdir == '' { $nagios_nrpe_cfgdir = '/usr/local/etc' }
 
             include nagios::nrpe::freebsd

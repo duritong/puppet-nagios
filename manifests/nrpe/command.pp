@@ -13,15 +13,9 @@ define nagios::nrpe::command (
 
     file { "$nagios_nrpe_cfgdir/nrpe.d/${name}_command.cfg":
                     ensure => $ensure,
-                    mode => 644, owner => root, group => root,
+                    mode => 644, owner => root, group => 0,
                     notify => Service['nagios-nrpe-server'],
                     require => File [ "$nagios_nrpe_cfgdir/nrpe.d" ]
-    }
-
-    if $operatingsystem == 'freebsd' {
-        File["$nagios_nrpe_cfgdir/nrpe.d/${name}_command.cfg"] {
-            group => wheel,
-        }
     }
 
     case $source {
