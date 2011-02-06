@@ -53,6 +53,10 @@ define nagios::service (
         Nagios_service["${real_name}"] { notification_options => $notification_options }
     }
 
+    if ($contact_groups != '') {
+        Nagios_service["${real_name}"] { contact_groups => $contact_groups }
+    }
+
     if ($use == 'absent') {
         Nagios_service["${real_name}"] { use => 'generic-service' }
     } else {

@@ -110,11 +110,11 @@ class nagios::base {
         notify => Service['nagios'],
     }
     Nagios_hostdependency <||> {
-        target => "${nagios_cfgdir}/conf.d/nagios_hostdependency.cfg",
+        target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostdependency.cfg",
         notify => Service['nagios'],
     }
     Nagios_hostescalation <||> {
-        target => "${nagios_cfgdir}/conf.d/nagios_hostescalation.cfg",
+        target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostescalation.cfg",
         notify => Service['nagios'],
     }
     Nagios_hostextinfo <||> {
@@ -133,7 +133,7 @@ class nagios::base {
         notify => Service['nagios'],
     }
     Nagios_servicegroup <||> {
-        target => "${nagios_cfgdir}/conf.d/nagios_servicegroup.cfg",
+        target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_servicegroup.cfg",
         notify => Service['nagios'],
     }
     Nagios_servicedependency <||> {
