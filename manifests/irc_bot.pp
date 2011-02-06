@@ -4,11 +4,17 @@ class nagios::irc_bot {
     }
 
     $nagios_nsa_socket = $nagios_nsa_socket ? {
-        '' => '/var/run/nagios3/nsa.socket',
+        '' => $operatingsystem ? {
+          centos => '/var/run/nagios-nsa/nsa.socket',
+          default => '/var/run/nagios3/nsa.socket'
+        },
         default => $nagios_nsa_socket,
     }
     $nagios_nsa_pidfile = $nagios_nsa_pidfile ? {
-        '' => '/var/run/nagios3/nsa.pid',
+        '' => $operatingsystem ? {
+          centos => '/var/run/nagios-nsa/nsa.socket',
+          default => '/var/run/nagios3/nsa.pid'
+        },
         default => $nagios_nsa_pidfile,
     }
     $nagios_nsa_port = $nagios_nsa_port ? {
@@ -79,5 +85,9 @@ class nagios::irc_bot {
             command_line => '/usr/local/bin/riseup-nagios-client.pl "$HOSTNAME$ ($SERVICEDESC$) $NOTIFICATIONTYPE$ n.$SERVICEATTEMPT$ $SERVICESTATETYPE$ $SERVICEEXECUTIONTIME$s $SERVICELATENCY$s $SERVICEOUTPUT$ $SERVICEPERFDATA$"';
         "host-notify-by-irc":
             command_line => '/usr/local/bin/riseup-nagios-client.pl "$HOSTNAME$ ($HOSTALIAS$) $NOTIFICATIONTYPE$ n.$HOSTATTEMPT$ $HOSTSTATETYPE$ took $HOSTEXECUTIONTIME$s $HOSTOUTPUT$ $HOSTPERFDATA$ $HOSTLATENCY$s"';
+    }
+
+    if $use_shorewall {
+      include shorewall::rules::out::irc
     }
 }
