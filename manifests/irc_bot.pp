@@ -34,7 +34,7 @@ class nagios::irc_bot {
     }
     file { "/etc/init.d/nagios-nsa":
         owner => root, group => root, mode => 0755,
-        content => template('nagios/irc_bot/nagios-nsa.sh.erb'),
+        content => template("nagios/irc_bot/${operatingsystem}/nagios-nsa.sh.erb"),
         require => File["/usr/local/bin/riseup-nagios-server.pl"],
     }
     file { "/etc/nagios_nsa.cfg":
@@ -47,19 +47,31 @@ class nagios::irc_bot {
         ensure => present,
     }
 
-    exec { "nagios_nsa_init_script":
-        command => "/usr/sbin/update-rc.d nagios-nsa defaults",
-        unless => "/bin/ls /etc/rc3.d/ | /bin/grep nagios-nsa",
-        require => File["/etc/init.d/nagios-nsa"],
-    }
     service { "nagios-nsa":
         ensure => "running",
-        pattern => "riseup-nagios-server.pl",
         hasstatus => true,
         require => [File["/etc/nagios_nsa.cfg"],
-                    Exec["nagios_nsa_init_script"],
                     Package["libnet-irc-perl"],
                     Service['nagios'] ],
+    }
+
+    case $operatingsystem {
+      centos: {
+        Package['libnet-irc-perl']{
+          name => 'perl-Net-IRC',  
+        }
+        Service['nagios-nsa']{
+          enable => true,
+        }
+      }  
+      debian,ubuntu: {
+        exec { "nagios_nsa_init_script":
+          command => "/usr/sbin/update-rc.d nagios-nsa defaults",
+          unless => "/bin/ls /etc/rc3.d/ | /bin/grep nagios-nsa",
+          require => File["/etc/init.d/nagios-nsa"],
+          before => Service['nagios-nsa'],
+        }
+      }
     }
 
     nagios_command {
