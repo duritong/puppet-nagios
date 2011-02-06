@@ -73,18 +73,17 @@ class nagios::base {
     }
     Package <<| tag == 'nagios::plugin::deploy::package' |>>
     File <<| tag == 'nagios::plugin::deploy::file' |>>
-    Nagios_plugin <<||>>
     Nagios_command <<||>>
-    Nagios_contact <<||>>
     Nagios_contactgroup <<||>>
-    Nagios_host <<||>>
+    Nagios_contact <<||>>
+    Nagios_hostgroupescalation <<||>>
     Nagios_hostextinfo <<||>>
     Nagios_hostgroup <<||>>
-    Nagios_hostgroupescalation <<||>>
-    Nagios_service <<||>>
+    Nagios_host <<||>>
     Nagios_servicedependency <<||>>
     Nagios_serviceescalation <<||>>
     Nagios_serviceextinfo <<||>>
+    Nagios_service <<||>>
     Nagios_timeperiod <<||>>
     File <<| tag == 'nagios_plugin' |>>
 
