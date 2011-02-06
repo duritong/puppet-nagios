@@ -116,11 +116,6 @@ class nagios::base {
         require => File['nagios_confd'],
         notify => Service['nagios'],
     }
-    Nagios_hostgroupescalation <||> {
-        target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostgroupescalation.cfg",
-        require => File['nagios_confd'],
-        notify => Service['nagios'],
-    }
     Nagios_service <||> {
         target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_service.cfg",
         require => File['nagios_confd'],
