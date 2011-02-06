@@ -76,7 +76,6 @@ class nagios::base {
     Nagios_command <<||>>
     Nagios_contactgroup <<||>>
     Nagios_contact <<||>>
-    Nagios_hostgroupescalation <<||>>
     Nagios_hostextinfo <<||>>
     Nagios_hostgroup <<||>>
     Nagios_host <<||>>
