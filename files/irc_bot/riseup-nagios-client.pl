@@ -12,7 +12,39 @@ use IO::Socket;
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # >> CONFIGURATION >>
 
-my $SOCKET = '/var/run/nagios/nsa.socket';
+# Read a configuration file
+#   The arg can be a relative or full path, or
+#   it can be a file located somewhere in @INC.
+sub ReadCfg
+{
+    my $file = $_[0];
+
+    our $err;
+
+    {   # Put config data into a separate namespace
+        package CFG;
+
+        # Process the contents of the config file
+        my $rc = do($file);
+
+        # Check for errors
+        if ($@) {
+            $::err = "ERROR: Failure compiling '$file' - $@";
+        } elsif (! defined($rc)) {
+            $::err = "ERROR: Failure reading '$file' - $!";
+        } elsif (! $rc) {
+            $::err = "ERROR: Failure processing '$file'";
+        }
+    }
+
+    return ($err);
+}
+
+# Get our configuration information
+if (my $err = ReadCfg('/etc/nagios_nsa.cfg')) {
+    print(STDERR $err, "\n");
+    exit(1);
+}
 
 # << CONFIGURATION <<
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -22,19 +54,19 @@ if (@ARGV == 0) {
 	exit(1);
 }
 
-unless (-S $SOCKET) {
-	die "Socket '$SOCKET' doesn't exist or isn't a socket!\n";
+unless (-S $CFG::Nsa{'socket'}) {
+	die "Socket '$CFG::Nsa{'socket'}' doesn't exist or isn't a socket!\n";
 }
 
-unless (-r $SOCKET) {
-	die "Socket '$SOCKET' can't be read!\n";
+unless (-r $CFG::Nsa{'socket'}) {
+	die "Socket '$CFG::Nsa{'socket'}' can't be read!\n";
 }
 
 my $sock = IO::Socket::UNIX->new (
-	Peer    => $SOCKET,
+	Peer    => $CFG::Nsa{'socket'},
 	Type    => SOCK_DGRAM,
 	Timeout => 10
-) || die "Can't open socket '$SOCKET'!\n";
+) || die "Can't open socket '$CFG::Nsa{'socket'}'!\n";
 
 print $sock "@ARGV";
 close($sock);
