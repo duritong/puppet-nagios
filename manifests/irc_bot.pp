@@ -12,7 +12,7 @@ class nagios::irc_bot {
     }
     $nagios_nsa_pidfile = $nagios_nsa_pidfile ? {
         '' => $operatingsystem ? {
-          centos => '/var/run/nagios-nsa/nsa.socket',
+          centos => '/var/run/nagios-nsa/nsa.pid',
           default => '/var/run/nagios3/nsa.pid'
         },
         default => $nagios_nsa_pidfile,
