@@ -114,6 +114,10 @@ class nagios::defaults::commands {
         # better check_dns
         check_dns2:
           command_line => '$USER1$/check_dns2 -c $ARG1$ A $ARG2$';
+
+        # dnsbl checking
+        check_dnsbl:
+          command_line => '$USER1$/check_dnsbl -H $ARG1$';
     }
 
     # notification commands
