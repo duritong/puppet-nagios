@@ -10,14 +10,14 @@ define nagios::plugin::deploy($source = '', $ensure = 'present', $config = '', $
     }
 
     if !defined(Package[$require_package]) {
-      @@package { $require_package:
+      package { $require_package:
         ensure => installed,
         tag => "nagios::plugin::deploy::package";
       }
     }
     
     include nagios::plugin::scriptpaths
-    @@file { "nagios_plugin_${name}":
+    file { "nagios_plugin_${name}":
       path => "$nagios::plugin::scriptpaths::script_path/${name}",
       source => "puppet://$server/modules/$real_source",
       mode => 0755, owner => root, group => 0,
@@ -26,5 +26,5 @@ define nagios::plugin::deploy($source = '', $ensure = 'present', $config = '', $
     }
 
     # register the plugin
-    @@nagios::plugin{$name: ensure => $ensure, require => Package['nagios-plugins'] }
+    nagios::plugin{$name: ensure => $ensure, require => Package['nagios-plugins'] }
 }

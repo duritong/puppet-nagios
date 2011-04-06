@@ -71,8 +71,6 @@ class nagios::base {
         notify => Service['nagios'],
         mode => '0750', owner => root, group => nagios;
     }
-    Package <<| tag == 'nagios::plugin::deploy::package' |>>
-    File <<| tag == 'nagios::plugin::deploy::file' |>>
     Nagios_command <<||>>
     Nagios_contactgroup <<||>>
     Nagios_contact <<||>>
@@ -87,7 +85,6 @@ class nagios::base {
     Nagios_serviceextinfo <<||>>
     Nagios_service <<||>>
     Nagios_timeperiod <<||>>
-    File <<| tag == 'nagios_plugin' |>>
 
     Nagios_command <||> {
         target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_command.cfg",
