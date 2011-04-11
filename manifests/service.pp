@@ -10,7 +10,7 @@ define nagios::service (
     $notification_period = '',
     $notification_options = '',
     $contact_groups = '',
-    $use = 'absent',
+    $use = 'generic-service',
     $service_description = 'absent' )
 {
 
@@ -22,7 +22,12 @@ define nagios::service (
         ensure => $ensure,
         check_command => $check_command,
         host_name => $host_name,
+        use => $use,
         notify => Service[nagios],
+        service_description => $service_description ?{
+          'absent' => $name,
+          default => $service_description
+        }
     }
 
     if ($check_period != '') {
@@ -53,17 +58,8 @@ define nagios::service (
         Nagios_service["${real_name}"] { notification_options => $notification_options }
     }
 
-    if ($use == 'absent') {
-        Nagios_service["${real_name}"] { use => 'generic-service' }
-    } else {
-        Nagios_service["${real_name}"] { use => $use }
+    if ($contact_groups != '') {
+        Nagios_service["${real_name}"] { contact_groups => $contact_groups }
     }
-
-    if ($service_description == 'absent') {
-        Nagios_service["${real_name}"] { service_description => $name }
-    } else {
-        Nagios_service["${real_name}"] { service_description => $service_description }
-    }
-
 }
 

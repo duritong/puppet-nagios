@@ -56,8 +56,8 @@ class nagios::base {
 
     file { 'nagios_private_resource_cfg':
         path => "${nagios::defaults::vars::int_nagios_cfgdir}/private/resource.cfg",
-        source => [ "puppet:///modules/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
-                    "puppet:///modules/site-nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}" ],
+        source => [ "puppet:///modules/site-nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
+                    "puppet:///modules/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}" ],
         notify => Service['nagios'],
         owner => root, group => nagios, mode => '0640';
     }
@@ -73,18 +73,19 @@ class nagios::base {
     }
     Package <<| tag == 'nagios::plugin::deploy::package' |>>
     File <<| tag == 'nagios::plugin::deploy::file' |>>
-    Nagios_plugin <<||>>
     Nagios_command <<||>>
-    Nagios_contact <<||>>
     Nagios_contactgroup <<||>>
-    Nagios_host <<||>>
+    Nagios_contact <<||>>
+    Nagios_hostdependency <<||>>
+    Nagios_hostescalation <<||>>
     Nagios_hostextinfo <<||>>
     Nagios_hostgroup <<||>>
-    Nagios_hostgroupescalation <<||>>
-    Nagios_service <<||>>
+    Nagios_host <<||>>
     Nagios_servicedependency <<||>>
     Nagios_serviceescalation <<||>>
+    Nagios_servicegroup <<||>>
     Nagios_serviceextinfo <<||>>
+    Nagios_service <<||>>
     Nagios_timeperiod <<||>>
     File <<| tag == 'nagios_plugin' |>>
 
@@ -108,6 +109,14 @@ class nagios::base {
         require => File['nagios_confd'],
         notify => Service['nagios'],
     }
+    Nagios_hostdependency <||> {
+        target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostdependency.cfg",
+        notify => Service['nagios'],
+    }
+    Nagios_hostescalation <||> {
+        target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostescalation.cfg",
+        notify => Service['nagios'],
+    }
     Nagios_hostextinfo <||> {
         target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostextinfo.cfg",
         require => File['nagios_confd'],
@@ -118,14 +127,13 @@ class nagios::base {
         require => File['nagios_confd'],
         notify => Service['nagios'],
     }
-    Nagios_hostgroupescalation <||> {
-        target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostgroupescalation.cfg",
-        require => File['nagios_confd'],
-        notify => Service['nagios'],
-    }
     Nagios_service <||> {
         target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_service.cfg",
         require => File['nagios_confd'],
+        notify => Service['nagios'],
+    }
+    Nagios_servicegroup <||> {
+        target => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_servicegroup.cfg",
         notify => Service['nagios'],
     }
     Nagios_servicedependency <||> {
@@ -153,6 +161,8 @@ class nagios::base {
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_contact.cfg", 
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_contactgroup.cfg",
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_host.cfg",
+           "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostdependency.cfg",
+           "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostescalation.cfg",
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostextinfo.cfg",
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostgroup.cfg",
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_hostgroupescalation.cfg",
@@ -160,6 +170,7 @@ class nagios::base {
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_servicedependency.cfg",
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_serviceescalation.cfg",
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_serviceextinfo.cfg",
+           "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_servicegroup.cfg",
            "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/nagios_timeperiod.cfg" ]:
         ensure => file,
         replace => false,

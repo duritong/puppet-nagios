@@ -8,6 +8,7 @@ define nagios::service::http(
     $check_domain = 'absent',
     $check_url = '/',
     $check_code = 'OK',
+    $use = 'generic-service',
     $ssl_mode = false
 ){
     $real_check_domain = $check_domain ? {
@@ -18,12 +19,14 @@ define nagios::service::http(
         'force',true,'only': {
             nagios::service{"https_${name}_${check_code}":
                 ensure => $ensure,
+                use => $use,
                 check_command => "check_https_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
             }
             case $ssl_mode {
                 'force': {
                     nagios::service{"httprd_${name}":
                         ensure => $ensure,
+                        use => $use,
                         check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'301'",
                     }
                 }
@@ -34,6 +37,7 @@ define nagios::service::http(
         false,true: {
             nagios::service{"http_${name}_${check_code}":
                 ensure => $ensure,
+                use => $use,
                 check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
             }
         }

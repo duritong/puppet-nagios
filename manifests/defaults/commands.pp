@@ -1,7 +1,9 @@
 class nagios::defaults::commands {
 
-    # common service commands
+  include nagios::command::smtp
+  include nagios::command::imap_pop3
 
+  # common service commands
   case $operatingsystem {
       debian,ubuntu: {
         nagios_command {
@@ -49,8 +51,10 @@ class nagios::defaults::commands {
             command_line => '$USER1$/check_disk -w $ARG1$ -c $ARG2$ -e';
           check_ssh:
             command_line => '$USER1$/check_ssh $HOSTADDRESS$';
-          ssh_port:
+          check_ssh_port:
             command_line => '$USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$';
+          check_ssh_port_host:
+            command_line => '$USER1$/check_ssh -p $ARG1$ $ARG2$';
           check_http:
             command_line => '$USER1$/check_http -H $HOSTADDRESS$ -I $HOSTADDRESS$';
           check_https:
@@ -77,6 +81,8 @@ class nagios::defaults::commands {
             command_line => '$USER1$/check_tcp -H $ARG1$ -p $ARG2$';
           check_jabber:
             command_line => '$USER1$/check_jabber -H $ARG1$';
+          check_git:
+            command_line => '$USER1$/check_tcp -H $ARG1$ -p 9418';
         }
       }
   }
@@ -87,6 +93,16 @@ class nagios::defaults::commands {
         # from apache module
         http_port:
             command_line => '$USER1$/check_http -p $ARG1$ -H $HOSTADDRESS$ -I $HOSTADDRESS$';
+
+        check_http_port_url_content:
+            command_line => '$USER1$/check_http -H $ARG1$ -p $ARG2$ -u $ARG3$ -s $ARG4$';
+        check_https_port_url_content:
+            command_line => '$USER1$/check_http --ssl -H $ARG1$ -p $ARG2$ -u $ARG3$ -s $ARG4$';
+        check_http_url_content:
+            command_line => '$USER1$/check_http -H $ARG1$ -u $ARG2$ -s $ARG3$';
+        check_https_url_content:
+            command_line => '$USER1$/check_http --ssl -H $ARG1$ -u $ARG2$ -s $ARG3$';
+
         # from bind module
         check_dig2:
            command_line => '$USER1$/check_dig -H $HOSTADDRESS$ -l $ARG1$ --record_type=$ARG2$';
@@ -94,16 +110,28 @@ class nagios::defaults::commands {
         # from mysql module
         check_mysql_health:
            command_line => '$USER1$/check_mysql_health --hostname $ARG1$ --port $ARG2$ --username $ARG3$ --password $ARG4$ --mode $ARG5$ --database $ARG6$ $ARG7$ $ARG8$';
+
+        # better check_dns
+        check_dns2:
+          command_line => '$USER1$/check_dns2 -c $ARG1$ A $ARG2$';
+
+        # dnsbl checking
+        check_dnsbl:
+          command_line => '$USER1$/check_dnsbl -H $ARG1$';
     }
 
     # notification commands
 
+    $mail_cmd_location = $operatingsystem ? {
+      centos => '/bin/mail',
+      default => '/usr/bin/mail'
+    }
+
     nagios_command {
         'notify-host-by-email':
-            command_line => '/usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\n\nDate/Time: $LONGDATETIME$\n" | /usr/bin/mail -s "** $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **" $CONTACTEMAIL$';
+            command_line => "/usr/bin/printf \"%b\" \"***** Nagios *****\\n\\nNotification Type: \$NOTIFICATIONTYPE\$\\nHost: \\$HOSTNAME\\$\\nState: \$HOSTSTATE\$\\nAddress: \$HOSTADDRESS\$\\nInfo: \$HOSTOUTPUT\$\\n\\nDate/Time: \$LONGDATETIME\$\\n\" | ${mail_cmd_location} -s \"** \$NOTIFICATIONTYPE\$ Host Alert: \$HOSTNAME\$ is \$HOSTSTATE\$ **\" \$CONTACTEMAIL\$";
 	    'notify-service-by-email':
-        	command_line => '/usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$" | /usr/bin/mail -s "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" $CONTACTEMAIL$'
-
+        	command_line => "/usr/bin/printf \"%b\" \"***** Nagios *****\\n\\nNotification Type: \$NOTIFICATIONTYPE\$\\n\\nService: \$SERVICEDESC\$\\nHost: \$HOSTALIAS\$\\nAddress: \$HOSTADDRESS\$\\nState: \$SERVICESTATE\$\\n\\nDate/Time: \$LONGDATETIME\$\\n\\nAdditional Info:\\n\\n\$SERVICEOUTPUT\$\" | ${mail_cmd_location} -s \"** \$NOTIFICATIONTYPE\$ Service Alert: \$HOSTALIAS\$/\$SERVICEDESC\$ is \$SERVICESTATE\$ **\" \$CONTACTEMAIL\$";
 	}
 
 }
