@@ -16,7 +16,7 @@ define nagios::service::pop(
       ensure => $ensure;
     "pops_${name}_${tls_port}":
       ensure => $tls ? {
-        true => ensure,
+        true => $ensure,
         default => 'absent'
         };
   }

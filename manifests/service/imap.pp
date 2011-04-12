@@ -16,7 +16,7 @@ define nagios::service::imap(
       ensure => $ensure;
     "imaps_${name}_${tls_port}":
       ensure => $tls ? {
-        true => ensure,
+        true => $ensure,
         default => 'absent'
         };
   }
