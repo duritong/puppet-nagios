@@ -35,6 +35,8 @@ class nagios::defaults::commands {
             command_line => '$USER1$/check_tcp -H $ARG1$ -p $ARG2$';
           check_jabber:
             command_line => '$USER1$/check_jabber -H $ARG1$';
+          check_git:
+            command_line => '$USER1$/check_tcp -H $ARG1$ -p 9418';
         }
       }
       default: {
