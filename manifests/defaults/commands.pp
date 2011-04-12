@@ -6,6 +6,12 @@ class nagios::defaults::commands {
   # common service commands
   case $operatingsystem {
       debian,ubuntu: {
+        # debian and ubuntu ship the nagios::command::smtp and
+        # nagios::command::imap_pop3 commands in the nagios-plugins packages,
+        # which are placed in /etc/nagios-plugins/config/mail.cfg, however they
+        # are inferior to the ones provided in this module below because they do
+        # not provide port options, so we just remove them
+        file { '/etc/nagios-plugins/config/mail.cfg': ensure => absent; }
         nagios_command {
           check_dummy:
             command_line => '$USER1$/check_dummy $ARG1$';
