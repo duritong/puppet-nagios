@@ -50,6 +50,6 @@ define nagios::service::mysql(
   
   nagios::service { "mysql_health_${name}":
     ensure        => $ensure,
-    check_command => "check_mysql_health!${real_check_host}!${check_port}!${check_username}!${check_password}!${name}!${check_database}${real_check_warning}${real_check_critical}",
+    check_command => "check_mysql_health!${real_check_host}!${check_port}!${check_username}!${check_password}!${check_health_mode}!${check_database}${real_check_warning}${real_check_critical}",
   }
 }
