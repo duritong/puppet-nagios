@@ -21,6 +21,10 @@ define nagios::service::mysql(
     fail("Please specify a hostname, ip address or socket to check a mysql instance.")
   }
 
+  if $check_name != undef {
+    $real_check_name = "!--name $check_name"
+  }
+  
   if $check_warning != undef {
     $real_check_warning = "!--warning $check_warning"
   }
@@ -50,6 +54,6 @@ define nagios::service::mysql(
   
   nagios::service { "mysql_health_${name}":
     ensure        => $ensure,
-    check_command => "check_mysql_health!${real_check_host}!${check_port}!${check_username}!${check_password}!${check_health_mode}!${check_database}${real_check_warning}${real_check_critical}",
+    check_command => "check_mysql_health!${real_check_host}!${check_port}!${check_username}!${check_password}!${check_health_mode}!${check_database}${real_check_name}${real_check_warning}${real_check_critical}",
   }
 }
