@@ -30,6 +30,10 @@ class nagios::irc_bot {
     $nagios_nsa_password = ''
   }
 
+  if (! $nagios_nsa_usenotices) {
+    $nagios_nsa_usenotices = ''
+  }
+  
   file { "/usr/local/bin/riseup-nagios-client.pl":
     owner => root, group => root, mode => 0755,
     source => "puppet:///modules/nagios/irc_bot/riseup-nagios-client.pl",

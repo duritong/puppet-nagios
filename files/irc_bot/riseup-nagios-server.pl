@@ -101,7 +101,11 @@ sub socket_has_data {
     my $self = shift;
     
     $self->{socket}->recv(my $data, 1024);
-    $self->{conn}->privmsg($CFG::Nsa{'channel'}, $data);
+    if ($CFG::Nsa{'usenotices'} {
+	$self->{conn}->notice($CFG::Nsa{'channel'}, $data);
+    } else {
+	$self->{conn}->privmsg($CFG::Nsa{'channel'}, $data);
+    }
 }
 
 sub irc_on_connect {
