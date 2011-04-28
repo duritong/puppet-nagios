@@ -101,7 +101,7 @@ sub socket_has_data {
     my $self = shift;
     
     $self->{socket}->recv(my $data, 1024);
-    if ($CFG::Nsa{'usenotices'} {
+    if ($CFG::Nsa{'usenotices'}) {
 	$self->{conn}->notice($CFG::Nsa{'channel'}, $data);
     } else {
 	$self->{conn}->privmsg($CFG::Nsa{'channel'}, $data);
