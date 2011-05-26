@@ -29,9 +29,9 @@ class nagios::nrpe::base {
     }
     # the check for load should be customized for each server based on number
     # of CPUs and the type of activity.
-    $warning_1_threshold = 5 * $processorcount
-    $warning_5_threshold = 4 * $processorcount
-    $warning_15_threshold = 3 * $processorcount
+    $warning_1_threshold = 7 * $processorcount
+    $warning_5_threshold = 6 * $processorcount
+    $warning_15_threshold = 5 * $processorcount
     $critical_1_threshold = 10 * $processorcount
     $critical_5_threshold = 9 * $processorcount
     $critical_15_threshold = 8 * $processorcount
