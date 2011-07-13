@@ -1,7 +1,11 @@
 class nagios::command::smtp {
   nagios_command{
     'check_smtp':
-      command_line => '$USER1$/check_smtp -H $ARG1$ -p $ARG2$';
+      command_line => '$USER1$/check_smtp -H $ARG1$ -p $ARG2$',
+      ensure       => $operatingsystem ? {
+        debian,ubuntu => absent,
+        default       => present,
+      };
     'check_smtp_tls':
       command_line => '$USER1$/check_smtp -H $ARG1$ -p $ARG2$ -S';
     'check_smtp_cert':
