@@ -47,6 +47,7 @@ class nagios::irc_bot {
         ensure => present,
         owner => nagios, group => root, mode => 0400,
         content => template('nagios/irc_bot/nsa.cfg.erb'),
+        notify => Service["nagios-nsa"],
     }
 
     package { "libnet-irc-perl":
