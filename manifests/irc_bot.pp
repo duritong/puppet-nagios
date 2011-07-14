@@ -57,7 +57,9 @@ class nagios::irc_bot {
     service { "nagios-nsa":
         ensure => "running",
         hasstatus => true,
+        enable => true,
         require => [File["/etc/nagios_nsa.cfg"],
+                    File["/etc/init.d/nagios-nsa"],
                     Package["libnet-irc-perl"],
                     Service['nagios'] ],
     }
@@ -65,18 +67,7 @@ class nagios::irc_bot {
     case $operatingsystem {
       centos: {
         Package['libnet-irc-perl']{
-          name => 'perl-Net-IRC',  
-        }
-        Service['nagios-nsa']{
-          enable => true,
-        }
-      }  
-      debian,ubuntu: {
-        exec { "nagios_nsa_init_script":
-          command => "/usr/sbin/update-rc.d nagios-nsa defaults",
-          unless => "/bin/ls /etc/rc3.d/ | /bin/grep nagios-nsa",
-          require => File["/etc/init.d/nagios-nsa"],
-          before => Service['nagios-nsa'],
+          name => 'perl-Net-IRC',
         }
       }
     }
