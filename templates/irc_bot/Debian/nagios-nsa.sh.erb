@@ -51,6 +51,7 @@ cleanup() {
 case $1
 in
         start)
+		cleanup
                 start
                 ;;
         stop)
