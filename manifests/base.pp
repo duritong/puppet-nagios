@@ -53,7 +53,6 @@ class nagios::base {
 
     file { 'nagios_private':
         path => "${nagios::defaults::vars::int_nagios_cfgdir}/private/",
-        source => "puppet:///modules/common/empty",
         ensure => directory,
         purge => true,
         recurse => true,
@@ -71,7 +70,6 @@ class nagios::base {
 
     file { 'nagios_confd':
         path => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/",
-        source => "puppet:///modules/common/empty",
         ensure => directory,
         purge => true,
         recurse => true,
@@ -189,7 +187,6 @@ class nagios::base {
     # must be defined after exported resource overrides and cfg file defs
     file { 'nagios_cfgdir':
         path => "${nagios::defaults::vars::int_nagios_cfgdir}/",
-        source => "puppet:///modules/common/empty",
         ensure => directory,
         recurse => true,
         purge => true,
