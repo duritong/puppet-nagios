@@ -1,6 +1,7 @@
 class nagios::nrpe::base {
 
     if $nagios_nrpe_cfgdir == '' { $nagios_nrpe_cfgdir = '/etc/nagios' }
+    if $processorcount == '' { $processorcount = 1 }
     
     package { 	"nagios-nrpe-server": ensure => present;
 		    "nagios-plugins-basic": ensure => present;
