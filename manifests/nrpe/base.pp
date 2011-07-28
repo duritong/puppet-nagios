@@ -44,6 +44,7 @@ class nagios::nrpe::base {
 	    ensure    => running,
 	    enable    => true,
 	    pattern   => "nrpe",
-	    subscribe => File["$nagios_nrpe_cfgdir/nrpe.cfg"]
+	    subscribe => File["$nagios_nrpe_cfgdir/nrpe.cfg"],
+            require   => Package["nagios-nrpe-server"],
     }
 }
