@@ -37,7 +37,7 @@ class nagios::nrpe::base {
     $critical_5_threshold = 9 * $processorcount
     $critical_15_threshold = 8 * $processorcount
     nagios::nrpe::command { "check_load":
-        command_line => "/usr/lib/nagios/plugins/check_load -w ${warning_1_threshold},${warning_5_threshold},${warning_15_threshold} -c ${critical_1_threshold},${critical_5_threshold},${critical_15_threshold}",
+        command_line => "${nagios_plugin_dir}/check_load -w ${warning_1_threshold},${warning_5_threshold},${warning_15_threshold} -c ${critical_1_threshold},${critical_5_threshold},${critical_15_threshold}",
     }
 
     service { "nagios-nrpe-server":
