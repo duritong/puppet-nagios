@@ -26,6 +26,13 @@ class nagios::base {
             mode => 0644, owner => root, group => root;
     }    
 
+    file { 'nagios_commands_cfg':
+            path   => "${nagios::defaults::vars::int_nagios_cfgdir}/commands.cfg",
+            ensure => present,
+            notify => Service['nagios'],
+            mode   => 0644, owner => root, group => root;
+    }
+
     file { 'nagios_cgi_cfg':
         path => "${nagios::defaults::vars::int_nagios_cfgdir}/cgi.cfg",
         source => [ "puppet:///modules/site-nagios/configs/${fqdn}/cgi.cfg",
