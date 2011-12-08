@@ -61,6 +61,7 @@ sub new {
       bufferpool_hitrate => undef,
       wait_free => undef,
       log_waits => undef,
+      have_innodb => undef,
       warningrange => $params{warningrange},
       criticalrange => $params{criticalrange},
     };
@@ -76,7 +77,15 @@ sub init {
   my $dummy;
   $self->debug("enter init");
   $self->init_nagios();
-  if ($params{mode} =~ /server::instance::innodb::bufferpool::hitrate/) {
+  ($dummy, $self->{have_innodb}) 
+      = $self->{handle}->fetchrow_array(q{
+      SHOW VARIABLES LIKE 'have_innodb'
+  });
+  if ($self->{have_innodb} eq "NO") {
+    $self->add_nagios_critical("the innodb engine has a problem (have_innodb=no)");
+  } elsif ($self->{have_innodb} eq "DISABLED") {
+    # add_nagios_ok later
+  } elsif ($params{mode} =~ /server::instance::innodb::bufferpool::hitrate/) {
     ($dummy, $self->{bufferpool_reads}) 
         = $self->{handle}->fetchrow_array(q{
         SHOW /*!50000 global */ STATUS LIKE 'Innodb_buffer_pool_reads'
@@ -139,7 +148,9 @@ sub nagios {
   my $self = shift;
   my %params = @_;
   my $now = $params{lookback} ? '_now' : '';
-  if (! $self->{nagios_level}) {
+  if ($self->{have_innodb} eq "DISABLED") {
+    $self->add_nagios_ok("the innodb engine has been disabled");
+  } elsif (! $self->{nagios_level}) {
     if ($params{mode} =~ /server::instance::innodb::bufferpool::hitrate/) {
       my $refkey = 'bufferpool_hitrate'.($params{lookback} ? '_now' : '');
       $self->add_nagios(
@@ -982,6 +993,7 @@ sub new {
     criticalrange => $params{criticalrange},
     verbose => $params{verbose},
     report => $params{report},
+    labelformat => $params{labelformat},
     version => 'unknown',
     instance => undef,
     handle => undef,
@@ -1013,18 +1025,24 @@ sub init {
     $self->{instance} = DBD::MySQL::Server::Instance->new(%params);
   } elsif ($params{mode} =~ /^server::sql/) {
     $self->set_local_db_thresholds(%params);
-    if ($params{name2} && $params{name2} ne $params{name}) {
-      $self->{genericsql} =
-          $self->{handle}->fetchrow_array($params{selectname});
-      if (! defined $self->{genericsql}) {
-        $self->add_nagios_unknown(sprintf "got no valid response for %s",
-            $params{selectname});
+    if ($params{regexp}) {
+      # sql output is treated as text
+      if ($params{name2} eq $params{name}) {
+        $self->add_nagios_unknown(sprintf "where's the regexp????");
+      } else {
+        $self->{genericsql} =
+            $self->{handle}->fetchrow_array($params{selectname});
+        if (! defined $self->{genericsql}) {
+          $self->add_nagios_unknown(sprintf "got no valid response for %s",
+              $params{selectname});
+        }
       }
     } else {
+      # sql output must be a number (or array of numbers)
       @{$self->{genericsql}} =
           $self->{handle}->fetchrow_array($params{selectname});
       if (! (defined $self->{genericsql} &&
-          (scalar(grep { /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/ } @{$self->{genericsql}})) ==
+          (scalar(grep { /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/ } @{$self->{genericsql}})) == 
           scalar(@{$self->{genericsql}}))) {
         $self->add_nagios_unknown(sprintf "got no valid response for %s",
             $params{selectname});
@@ -1117,8 +1135,19 @@ sub nagios {
           $self->{connection_time},
           $self->{warningrange}, $self->{criticalrange});
     } elsif ($params{mode} =~ /^server::sql/) {
-      if ($params{name2} && $params{name2} ne $params{name}) {
-        if ($params{regexp}) {
+      if ($params{regexp}) {
+        if (substr($params{name2}, 0, 1) eq '!') {
+          $params{name2} =~ s/^!//;
+          if ($self->{genericsql} !~ /$params{name2}/) {
+            $self->add_nagios_ok(
+                sprintf "output %s does not match pattern %s",
+                    $self->{genericsql}, $params{name2});
+          } else {
+            $self->add_nagios_critical(
+                sprintf "output %s matches pattern %s",
+                    $self->{genericsql}, $params{name2});
+          }
+        } else {
           if ($self->{genericsql} =~ /$params{name2}/) {
             $self->add_nagios_ok(
                 sprintf "output %s matches pattern %s",
@@ -1127,14 +1156,6 @@ sub nagios {
             $self->add_nagios_critical(
                 sprintf "output %s does not match pattern %s",
                     $self->{genericsql}, $params{name2});
-          }
-        } else {
-          if ($self->{genericsql} eq $params{name2}) {
-            $self->add_nagios_ok(
-                sprintf "output %s found", $self->{genericsql});
-          } else {
-            $self->add_nagios_critical(
-                sprintf "output %s not found", $self->{genericsql});
           }
         }
       } else {
@@ -1287,6 +1308,7 @@ sub merge_nagios {
 
 sub calculate_result {
   my $self = shift;
+  my $labels = shift || {};
   my $multiline = 0;
   map {
     $self->{nagios_level} = $ERRORS{$_} if
@@ -1328,7 +1350,25 @@ sub calculate_result {
   } elsif ($self->{report} eq "html") {
     $self->{nagios_message} .= $all_messages_short."\n".$all_messages_html;
   }
-  $self->{perfdata} = join(" ", @{$self->{nagios}->{perfdata}});
+  if ($self->{labelformat} eq "pnp4nagios") {
+    $self->{perfdata} = join(" ", @{$self->{nagios}->{perfdata}});
+  } else {
+    $self->{perfdata} = join(" ", map {
+        my $perfdata = $_;
+        if ($perfdata =~ /^(.*?)=(.*)/) {
+          my $label = $1;
+          my $data = $2;
+          if (exists $labels->{$label} &&
+              exists $labels->{$label}->{$self->{labelformat}}) {
+            $labels->{$label}->{$self->{labelformat}}."=".$data;
+          } else {
+            $perfdata;
+          }
+        } else {
+          $perfdata;
+        }
+    } @{$self->{nagios}->{perfdata}});
+  }
 }
 
 sub set_global_db_thresholds {
@@ -1497,9 +1537,30 @@ sub save_state {
   my $self = shift;
   my %params = @_;
   my $extension = "";
-  mkdir $params{statefilesdir} unless -d $params{statefilesdir};
-  my $statefile = sprintf "%s/%s_%s", 
-      $params{statefilesdir}, $params{hostname}, $params{mode};
+  my $mode = $params{mode};
+  if ($params{connect} && $params{connect} =~ /(\w+)\/(\w+)@(\w+)/) {
+    $params{connect} = $3;
+  } elsif ($params{connect}) {
+    # just to be sure
+    $params{connect} =~ s/\//_/g;
+  }
+  if ($^O =~ /MSWin/) {
+    $mode =~ s/::/_/g;
+    $params{statefilesdir} = $self->system_vartmpdir();
+  }
+  if (! -d $params{statefilesdir}) {
+    eval {
+      use File::Path;
+      mkpath $params{statefilesdir};
+    };
+  }
+  if ($@ || ! -w $params{statefilesdir}) {
+    $self->add_nagios($ERRORS{CRITICAL},
+        sprintf "statefilesdir %s does not exist or is not writable\n",
+        $params{statefilesdir});
+    return;
+  }
+  my $statefile = sprintf "%s_%s", $params{hostname}, $mode;
   $extension .= $params{differenciator} ? "_".$params{differenciator} : "";
   $extension .= $params{socket} ? "_".$params{socket} : "";
   $extension .= $params{port} ? "_".$params{port} : "";
@@ -1514,12 +1575,17 @@ sub save_state {
   $extension =~ s/\s/_/g;
   $statefile .= $extension;
   $statefile = lc $statefile;
-  open(STATE, ">$statefile");
-  if ((ref($params{save}) eq "HASH") && exists $params{save}->{timestamp}) {
-    $params{save}->{localtime} = scalar localtime $params{save}->{timestamp};
+  $statefile = sprintf "%s/%s", $params{statefilesdir}, $statefile;
+  if (open(STATE, ">$statefile")) {
+    if ((ref($params{save}) eq "HASH") && exists $params{save}->{timestamp}) {
+      $params{save}->{localtime} = scalar localtime $params{save}->{timestamp};
+    }
+    printf STATE Data::Dumper::Dumper($params{save});
+    close STATE;
+  } else { 
+    $self->add_nagios($ERRORS{CRITICAL},
+        sprintf "statefile %s is not writable", $statefile);
   }
-  printf STATE Data::Dumper::Dumper($params{save});
-  close STATE;
   $self->debug(sprintf "saved %s to %s",
       Data::Dumper::Dumper($params{save}), $statefile);
 }
@@ -1528,8 +1594,18 @@ sub load_state {
   my $self = shift;
   my %params = @_;
   my $extension = "";
-  my $statefile = sprintf "%s/%s_%s", 
-      $params{statefilesdir}, $params{hostname}, $params{mode};
+  my $mode = $params{mode};
+  if ($params{connect} && $params{connect} =~ /(\w+)\/(\w+)@(\w+)/) {
+    $params{connect} = $3;
+  } elsif ($params{connect}) {
+    # just to be sure
+    $params{connect} =~ s/\//_/g;
+  }
+  if ($^O =~ /MSWin/) {
+    $mode =~ s/::/_/g;
+    $params{statefilesdir} = $self->system_vartmpdir();
+  }
+  my $statefile = sprintf "%s_%s", $params{hostname}, $mode;
   $extension .= $params{differenciator} ? "_".$params{differenciator} : "";
   $extension .= $params{socket} ? "_".$params{socket} : "";
   $extension .= $params{port} ? "_".$params{port} : "";
@@ -1544,13 +1620,15 @@ sub load_state {
   $extension =~ s/\s/_/g;
   $statefile .= $extension;
   $statefile = lc $statefile;
+  $statefile = sprintf "%s/%s", $params{statefilesdir}, $statefile;
   if ( -f $statefile) {
     our $VAR1;
     eval {
       require $statefile;
     };
     if($@) {
-printf "rumms\n";
+      $self->add_nagios($ERRORS{CRITICAL},
+          sprintf "statefile %s is corrupt", $statefile);
     }
     $self->debug(sprintf "load %s", Data::Dumper::Dumper($VAR1));
     return $VAR1;
@@ -3076,7 +3154,7 @@ sub init {
     foreach my $line (split(/\n/, $data)) {
       if ($line =~ /\[(.*)\]/) {
         $in_section = $1;
-      } elsif ($line =~ /(.*)=(.*)/) {
+      } elsif ($line =~ /(.*?)\s*=\s*(.*)/) {
         $self->{config}->{$in_section}->{$1} = $2;
       }
     }
@@ -3122,10 +3200,10 @@ use lib dirname($0);
 use vars qw ($PROGNAME $REVISION $CONTACT $TIMEOUT $STATEFILESDIR $needs_restart %commandline);
 
 $PROGNAME = "check_mysql_health";
-$REVISION = '$Revision: 2.1.5 $';
+$REVISION = '$Revision: 2.1.7 $';
 $CONTACT = 'gerhard.lausser@consol.de';
 $TIMEOUT = 60;
-$STATEFILESDIR = '/var/run';
+$STATEFILESDIR = '/var/tmp/check_mysql_health';
 $needs_restart = 0;
 
 my @modes = (
@@ -3215,6 +3293,67 @@ my @modes = (
       'any sql command returning a single number' ],
 );
 
+# rrd data store names are limited to 19 characters
+my %labels = (
+  bufferpool_hitrate => {
+    groundwork => 'bp_hitrate',
+  },
+  bufferpool_hitrate_now => {
+    groundwork => 'bp_hitrate_now',
+  },
+  bufferpool_free_waits_rate => {
+    groundwork => 'bp_freewaits',
+  },
+  innodb_log_waits_rate => {
+    groundwork => 'inno_log_waits',
+  },
+  keycache_hitrate => {
+    groundwork => 'kc_hitrate',
+  },
+  keycache_hitrate_now => {
+    groundwork => 'kc_hitrate_now',
+  },
+  threads_created_per_sec => {
+    groundwork => 'thrds_creat_per_s',
+  },
+  connects_aborted_per_sec => {
+    groundwork => 'conn_abrt_per_s',
+  },
+  clients_aborted_per_sec => {
+    groundwork => 'clnt_abrt_per_s',
+  },
+  thread_cache_hitrate => {
+    groundwork => 'tc_hitrate',
+  },
+  thread_cache_hitrate_now => {
+    groundwork => 'tc_hitrate_now',
+  },
+  qcache_lowmem_prunes_rate => {
+    groundwork => 'qc_lowm_prnsrate',
+  },
+  slow_queries_rate => {
+    groundwork => 'slow_q_rate',
+  },
+  tablecache_hitrate => {
+    groundwork => 'tac_hitrate',
+  },
+  tablecache_fillrate => {
+    groundwork => 'tac_fillrate',
+  },
+  tablelock_contention => {
+    groundwork => 'tl_contention',
+  },
+  tablelock_contention_now => {
+    groundwork => 'tl_contention_now',
+  },
+  pct_tmp_table_on_disk => {
+    groundwork => 'tmptab_on_disk',
+  },
+  pct_tmp_table_on_disk_now => {
+    groundwork => 'tmptab_on_disk_now',
+  },
+);
+
 sub print_usage () {
   print <<EOUS;
   Usage:
@@ -3267,6 +3406,9 @@ EOUS
     --units
        one of %, KB, MB, GB. This is used for a better output of mode=sql
        and for specifying thresholds for mode=tablespace-free
+    --labelformat
+       one of pnp4nagios (which is the default) or groundwork.
+       It is used to shorten performance data labels to 19 characters.
 
   In mode sql you can url-encode the statement so you will not have to mess
   around with special characters in your Nagios service definitions.
@@ -3357,8 +3499,10 @@ my @params = (
     "units=s",
     "lookback=i",
     "3",
+    "statefilesdir=s",
     "with-mymodules-dyn-dir=s",
     "report=s",
+    "labelformat=s",
     "extra-opts:s");
 
 if (! GetOptions(\%commandline, @params)) {
@@ -3426,6 +3570,12 @@ if (exists $commandline{report}) {
   # short, long, html
 } else {
   $commandline{report} = "long";
+}
+
+if (exists $commandline{labelformat}) {
+  # groundwork
+} else {
+  $commandline{labelformat} = "pnp4nagios";
 }
 
 if (exists $commandline{'with-mymodules-dyn-dir'}) {
@@ -3509,6 +3659,14 @@ if (exists $commandline{shell}) {
   system("/bin/sh");
 }
 
+if (! exists $commandline{statefilesdir}) {
+  if (exists $ENV{OMD_ROOT}) {
+    $commandline{statefilesdir} = $ENV{OMD_ROOT}."/var/tmp/check_mysql_health";
+  } else {
+    $commandline{statefilesdir} = $STATEFILESDIR;
+  }
+}
+
 if (exists $commandline{name}) {
   # objects can be encoded like an url
   # with s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
@@ -3586,9 +3744,10 @@ my %params = (
     units => $commandline{units},
     lookback => $commandline{lookback} || 0,
     eyecandy => $commandline{eyecandy},
-    statefilesdir => $STATEFILESDIR,
+    statefilesdir => $commandline{statefilesdir},
     verbose => $commandline{verbose},
     report => $commandline{report},
+    labelformat => $commandline{labelformat},
 );
 
 my $server = undef;
@@ -3597,14 +3756,14 @@ my $cluster = undef;
 if ($params{mode} =~ /^(server|my)/) {
   $server = DBD::MySQL::Server->new(%params);
   $server->nagios(%params);
-  $server->calculate_result();
+  $server->calculate_result(\%labels);
   $nagios_message = $server->{nagios_message};
   $nagios_level = $server->{nagios_level};
   $perfdata = $server->{perfdata};
 } elsif ($params{mode} =~ /^cluster/) {
   $cluster = DBD::MySQL::Cluster->new(%params);
   $cluster->nagios(%params);
-  $cluster->calculate_result();
+  $cluster->calculate_result(\%labels);
   $nagios_message = $cluster->{nagios_message};
   $nagios_level = $cluster->{nagios_level};
   $perfdata = $cluster->{perfdata};
