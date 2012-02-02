@@ -1,6 +1,6 @@
 class nagios::defaults::vars {
   case $nagios_cfgdir {
-    '': { $int_nagios_cfgdir = $operatingsystem ? {
+    '': { $int_nagios_cfgdir = $::operatingsystem ? {
             centos => '/etc/nagios/',
             default => '/etc/nagios3'
           }
