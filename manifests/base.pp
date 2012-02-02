@@ -18,9 +18,9 @@ class nagios::base {
     file { 'nagios_main_cfg':
             path => "${nagios::defaults::vars::int_nagios_cfgdir}/nagios.cfg",
             source => [ "puppet:///modules/site-nagios/configs/${fqdn}/nagios.cfg",
-                        "puppet:///modules/site-nagios/configs/${operatingsystem}/nagios.cfg",
+                        "puppet:///modules/site-nagios/configs/${::operatingsystem}/nagios.cfg",
                         "puppet:///modules/site-nagios/configs/nagios.cfg",
-                        "puppet:///modules/nagios/configs/${operatingsystem}/nagios.cfg",
+                        "puppet:///modules/nagios/configs/${::operatingsystem}/nagios.cfg",
                         "puppet:///modules/nagios/configs/nagios.cfg" ],
             notify => Service['nagios'],
             mode => 0644, owner => root, group => root;
@@ -29,9 +29,9 @@ class nagios::base {
     file { 'nagios_cgi_cfg':
         path => "${nagios::defaults::vars::int_nagios_cfgdir}/cgi.cfg",
         source => [ "puppet:///modules/site-nagios/configs/${fqdn}/cgi.cfg",
-                    "puppet:///modules/site-nagios/configs/${operatingsystem}/cgi.cfg",
+                    "puppet:///modules/site-nagios/configs/${::operatingsystem}/cgi.cfg",
                     "puppet:///modules/site-nagios/configs/cgi.cfg",
-                    "puppet:///modules/nagios/configs/${operatingsystem}/cgi.cfg",
+                    "puppet:///modules/nagios/configs/${::operatingsystem}/cgi.cfg",
                     "puppet:///modules/nagios/configs/cgi.cfg" ],
         mode => '0644', owner => 'root', group => 0,
         notify => Service['apache'],
@@ -56,8 +56,8 @@ class nagios::base {
 
     file { 'nagios_private_resource_cfg':
         path => "${nagios::defaults::vars::int_nagios_cfgdir}/private/resource.cfg",
-        source => [ "puppet:///modules/site-nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}",
-                    "puppet:///modules/nagios/configs/${operatingsystem}/private/resource.cfg.${architecture}" ],
+        source => [ "puppet:///modules/site-nagios/configs/${::operatingsystem}/private/resource.cfg.${::architecture}",
+                    "puppet:///modules/nagios/configs/${::operatingsystem}/private/resource.cfg.${::architecture}" ],
         notify => Service['nagios'],
         owner => root, group => nagios, mode => '0640';
     }
