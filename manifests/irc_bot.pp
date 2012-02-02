@@ -4,14 +4,14 @@ class nagios::irc_bot {
     }
 
     $nagios_nsa_socket = $nagios_nsa_socket ? {
-        '' => $operatingsystem ? {
+        '' => $::operatingsystem ? {
           centos => '/var/run/nagios-nsa/nsa.socket',
           default => '/var/run/nagios3/nsa.socket'
         },
         default => $nagios_nsa_socket,
     }
     $nagios_nsa_pidfile = $nagios_nsa_pidfile ? {
-        '' => $operatingsystem ? {
+        '' => $::operatingsystem ? {
           centos => '/var/run/nagios-nsa/nsa.pid',
           default => '/var/run/nagios3/nsa.pid'
         },
@@ -40,7 +40,7 @@ class nagios::irc_bot {
     }
     file { "/etc/init.d/nagios-nsa":
         owner => root, group => root, mode => 0755,
-        content => template("nagios/irc_bot/${operatingsystem}/nagios-nsa.sh.erb"),
+        content => template("nagios/irc_bot/${::operatingsystem}/nagios-nsa.sh.erb"),
         require => File["/usr/local/bin/riseup-nagios-server.pl"],
     }
     file { "/etc/nagios_nsa.cfg":
@@ -61,7 +61,7 @@ class nagios::irc_bot {
                     Service['nagios'] ],
     }
 
-    case $operatingsystem {
+    case $::operatingsystem {
       centos: {
         Package['libnet-irc-perl']{
           name => 'perl-Net-IRC',  
