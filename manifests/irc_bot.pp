@@ -3,7 +3,7 @@ class nagios::irc_bot {
     fail("Please provide values at least for \$nagios_nsa_server, \$nagios_nsa_nickname and \$nagios_nsa_channel")
   }
 
-  case $operatingsystem {
+  case $::operatingsystem {
     centos: {
       $nagios_nsa_default_socket = '/var/run/nagios-nsa/nsa.socket'
       $nagios_nsa_default_pidfile = '/var/run/nagios-nsa/nsa.pid'

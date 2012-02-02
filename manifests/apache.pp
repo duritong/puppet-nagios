@@ -2,7 +2,7 @@ class nagios::apache inherits ::apache {
     $nagios_httpd = 'apache'
     include nagios
 
-    case $operatingsystem {
+    case $::operatingsystem {
         'debian': {
             file { "${nagios::defaults::vars::int_nagios_cfgdir}/apache2.conf":
                 ensure => present,

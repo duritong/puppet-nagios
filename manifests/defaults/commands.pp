@@ -4,7 +4,7 @@ class nagios::defaults::commands {
   include nagios::command::imap_pop3
 
   # common service commands
-  case $operatingsystem {
+  case $::operatingsystem {
       debian,ubuntu: {
         nagios_command {
           check_dummy:
@@ -124,7 +124,7 @@ class nagios::defaults::commands {
 
     # notification commands
 
-    $mail_cmd_location = $operatingsystem ? {
+    $mail_cmd_location = $::operatingsystem ? {
       centos => '/bin/mail',
       default => '/usr/bin/mail'
     }

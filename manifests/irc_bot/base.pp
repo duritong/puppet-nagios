@@ -36,7 +36,7 @@ class nagios::irc_bot::base {
     }
     file { "/etc/init.d/nagios-nsa":
         owner => root, group => 0, mode => 0755,
-        content => template("nagios/irc_bot/${operatingsystem}/nagios-nsa.sh.erb"),
+        content => template("nagios/irc_bot/${::operatingsystem}/nagios-nsa.sh.erb"),
         require => File["/usr/local/bin/riseup-nagios-server.pl"],
     }
     file { "/etc/nagios_nsa.cfg":
