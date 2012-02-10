@@ -1,11 +1,11 @@
-# Checks a mysql instance via tcp or socket                                                                                                               
+# Checks a mysql instance via tcp or socket
 
 define nagios::service::mysql(
   $ensure = present,
   $check_host = 'absent',
   $check_port = '3306',
   $check_username = 'nagios',
-  $check_password = $nagios_mysql_password,
+  $check_password = trocla("mysql_nagios_${::fqdn}",'plain','length: 32'),
   $check_database = 'information_schema',
   $check_warning = undef,
   $check_critical = undef,
@@ -51,7 +51,7 @@ define nagios::service::mysql(
       }
     }
   }
-  
+
   nagios::service { "mysql_health_${name}":
     ensure        => $ensure,
     check_command => "check_mysql_health!${real_check_host}!${check_port}!${check_username}!${check_password}!${check_health_mode}!${check_database}${real_check_name}${real_check_warning}${real_check_critical}",
