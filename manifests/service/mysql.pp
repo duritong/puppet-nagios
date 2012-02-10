@@ -1,11 +1,11 @@
-# Checks a mysql instance via tcp or socket                                                                                                               
+# Checks a mysql instance via tcp or socket
 
 define nagios::service::mysql(
   $ensure = present,
   $check_host = 'absent',
   $check_port = '3306',
   $check_username = 'nagios',
-  $check_password = $nagios_mysql_password,
+  $check_password = trocla("mysql_nagios_${::fqdn}",'plain','length: 32'),
   $check_database = 'information_schema',
   $check_warning = undef,
   $check_critical = undef,
@@ -20,7 +20,7 @@ define nagios::service::mysql(
   if ($check_host == 'absent') {
     fail("Please specify a hostname, ip address or socket to check a mysql instance.")
   }
-  
+
   case $check_mode {
     'tcp': {
       if ($check_host == 'localhost') {
@@ -39,7 +39,7 @@ define nagios::service::mysql(
       }
     }
   }
-  
+
   nagios::service { "mysql_health_${name}":
     ensure        => $ensure,
     check_command => "check_mysql_health!${check_host}!${check_port}!${check_username}!${check_password}!${name}!${check_database}",
