@@ -13,7 +13,8 @@ define nagios::service (
     $use = 'generic-service',
     $service_description = 'absent',
     $use_nrpe = '',
-    $nrpe_args = '' )
+    $nrpe_args = '',
+    $nrpe_timeout = 10 )
 {
 
     # TODO: this resource should normally accept all nagios_host parameters
@@ -21,11 +22,13 @@ define nagios::service (
     $real_name = "${hostname}_${name}"
 
     if ($use_nrpe == 'true') {
-        if ($nrpe_args != '') { 
-	    $real_check_command = "check_nrpe!$check_command!\"$nrpe_args\"" 
+	include nagios::command::nrpe_timeout
+
+        if ($nrpe_args != '') {
+	    $real_check_command = "check_nrpe_timeout!$nrpe_timeout!$check_command!\"$nrpe_args\""
 	}
-	else { 
-	    $real_check_command = "check_nrpe_1arg!$check_command" 
+	else {
+	    $real_check_command = "check_nrpe_1arg_timeout!$nrpe_timeout!$check_command"
 	}
     }
     else {
