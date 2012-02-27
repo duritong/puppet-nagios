@@ -167,7 +167,7 @@ sub parse_msg {
     my $data = join(' ', $event->args);
     my $msg;
     if ($data =~ m/([^:]*:)?\s*ack(?:knowledge)?\s+([a-zA-Z0-9\-\.]+)(?:\s+(\w+)(?:\s+([\w\s]+))?)?/) {
-      print STDERR "writing to nagios scoket ". $CFG::Nsa{'commandfile'} . "\n";
+      #print STDERR "writing to nagios scoket ". $CFG::Nsa{'commandfile'} . "\n";
       open(my $cmdfile, ">", $CFG::Nsa{'commandfile'}) || die "Can't open Nagios commandfile: $CFG::Nsa{'commandfile'}!\n";
       my $host = $2;
       my ($service, $comment) = (undef, "no comment");
