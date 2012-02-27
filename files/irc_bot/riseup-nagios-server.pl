@@ -11,6 +11,8 @@
 ## STICKY POINTS: the addfh() function doesn't exist in BasicBot or POE::Component::IRC
 ##
 ## people suggested we use Anyevent::IRC and POE::Kernel ->select_read and POE::Wheel namespace
+##
+## in the meantime, inspiration for extensions can be found here: http://svn.foswiki.org/trunk/WikiBot/mozbot.pl
 
 use strict;
 use File::Basename;
