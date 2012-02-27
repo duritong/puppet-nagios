@@ -56,7 +56,8 @@ sub new {
 	my $self = {
 		socket => undef,
 		irc => undef,
-		conn => undef
+		conn => undef,
+		commandfile => undef,
 	};
 
 	return bless($self, __PACKAGE__);
@@ -115,6 +116,70 @@ sub irc_on_connect {
 	$self->join($CFG::Nsa{'channel'});
 }
 
+sub irc_on_msg {
+    my ($self, $event) = @_;
+    my $data = join(' ', $event->args);
+    #my $nick = quotemeta($nicks[$nick]);
+    my $to = $event->to;
+    #my $channel = &toToChannel($self, @$to);
+    #my $cmdChar = $commandChar{default}; # FIXME: should look up for CURRENT channel first!
+    #if ( exists $commandChar{$channel} ) { $cmdChar = $commandChar{$channel}; }
+    my $msg = parse_msg($event);
+    if (defined($msg)) {
+      $self->privmsg($event->nick, "alright, sending this message to nagios, hope it figures it out: $msg");
+    } else {
+      $self->privmsg($event->nick, "can't parse $data, you want 'ack host service comment'\n");
+    }
+}
+
+sub irc_on_public {
+    my ($self, $event) = @_;
+    my $data = join(' ', $event->args);
+    my $to = $event->to;
+    if ($data =~ s/([^:]*):\s+//) {
+      if ($1 eq $CFG::Nsa{'nickname'}) {
+        my $msg = parse_msg($event);
+        if (defined($msg)) {
+          $self->privmsg($event->to, "alright, sending this message to nagios, hope it figures it out: $msg");
+        } else {
+          $self->privmsg($event->to, "can't parse $data, you want 'ack host service comment'\n");
+        }
+      } else {
+        #print STDERR "ignoring message $data, not for me (me being $1)\n";
+      }
+    } else {
+      #print STDERR "ignoring message $data\n";
+    }
+}
+
+sub parse_msg {
+    my $event= shift;
+    my $data = join(' ', $event->args);
+    my $msg;
+    if ($data =~ m/([^:]*:)?\s*ack(?:knowledge)?\s+([a-zA-Z0-9\-\.]+)(?:\s+(\w+)(?:\s+(\w+))?)?/) {
+      print STDERR "writing to nagios scoket ". $CFG::Nsa{'nagios_socket'} . "\n";
+      open(my $cmdfile, ">", $CFG::Nsa{'nagios_socket'}) || die "Can't open Nagios commandfile: $CFG::Nsa{'nagios_socket'}!\n";
+      my $host = $2;
+      my ($service, $comment) = (undef, "");
+      if ($4) {
+        $service = $3;
+	$comment = $4;
+      } elsif ($3) {
+        $service = $3;
+      }
+      my $user = $event->nick;
+      $msg = '[' . time() . '] ';
+      if (defined($service)) {
+        $msg .= "ACKNOWLEDGE_SVC_PROBLEM;$host;$service;1;1;1;$user;$comment\n";
+      } else {
+        $msg .= "ACKNOWLEDGE_HOST_PROBLEM;$host;1;1;1;$user;$comment\n";
+      }
+      print {$cmdfile} $msg;
+      close($cmdfile);
+    }
+    return $msg;
+}
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 my $bot = &new;
@@ -145,6 +210,9 @@ $bot->{conn} = $bot->{irc}->newconn (
 
 $bot->{conn}->add_global_handler(376, \&irc_on_connect);
 $bot->{conn}->add_global_handler('nomotd', \&irc_on_connect);
+$bot->{conn}->add_global_handler('msg', \&irc_on_msg);
+$bot->{conn}->add_global_handler('public', \&irc_on_public);
+#$bot->{conn}->add_global_handler('notice', \&irc_on_msg);
 $bot->{irc}->addfh($bot->{socket}, \&socket_has_data, 'r', $bot);
 
 while ($running) {
