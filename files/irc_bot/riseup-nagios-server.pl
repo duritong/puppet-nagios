@@ -136,7 +136,7 @@ sub irc_on_msg {
     #if ( exists $commandChar{$channel} ) { $cmdChar = $commandChar{$channel}; }
     my $msg = parse_msg($event);
     if (defined($msg)) {
-      $self->privmsg($event->nick, "alright, sending this message to nagios, hope it figures it out: $msg");
+      #$self->privmsg($event->nick, "alright, sending this message to nagios, hope it figures it out: $msg");
     } else {
       $self->privmsg($event->nick, "can't parse $data, you want 'ack host service comment'\n");
     }
@@ -150,7 +150,7 @@ sub irc_on_public {
       if ($1 eq $CFG::Nsa{'nickname'}) {
         my $msg = parse_msg($event);
         if (defined($msg)) {
-          $self->privmsg($event->to, "alright, sending this message to nagios, hope it figures it out: $msg");
+          #$self->privmsg($event->to, "alright, sending this message to nagios, hope it figures it out: $msg");
         } else {
           $self->privmsg($event->to, "can't parse $data, you want 'ack host service comment'\n");
         }
