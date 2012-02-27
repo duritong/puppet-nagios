@@ -170,7 +170,7 @@ sub parse_msg {
       #print STDERR "writing to nagios scoket ". $CFG::Nsa{'commandfile'} . "\n";
       open(my $cmdfile, ">", $CFG::Nsa{'commandfile'}) || die "Can't open Nagios commandfile: $CFG::Nsa{'commandfile'}!\n";
       my $host = $2;
-      my ($service, $comment) = (undef, "no comment");
+      my ($service, $comment) = (undef, "no comment (from irc)");
       if ($4) {
         $service = $3;
 	$comment = $4;
