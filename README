@@ -68,11 +68,24 @@ files directly.
 NRPE Services 
 -------------
 
-NRPE Services can be defines as i.e.:
+Some Nagios services need to be checked via NRPE. The following will make the
+nagios server define a service that will check the NRPE command 'check_cpu' on
+the current node:
 
-    nagios::service { 'CPU Usage': use_nrpe => 'true', 
-	check_command => "check_cpu", 
-	nrpe_args => "-t 60"
+    nagios::service { 'CPU Usage':
+      use_nrpe => 'true',
+      check_command => "check_cpu",
+      nrpe_args => "-t 60"
+    }
+
+NRPE Commands
+-------------
+
+To be able to call NRPE commands on a host, one needs to define that command
+and what it is going to execute:
+
+    nagios::nrpe::command { 'debsums':
+      check_command => '/usr/lib/nagios/plugins/check_debsums openssh-server'
     }
 
 
@@ -144,10 +157,32 @@ Variables
 
 Options to change the behavior of the nagios module:
 
+- nagios_parents: Which host(s) are this node's parents in the nagios host map.
+
 - nagios_allow_external_cmd: Set to true, if you'd like to ensure that your http
                              daemon can write to the external command file. You 
                              may also need to flip "check_external_commands" in
                              "nagios.cfg" to enable this functionality.
+
+- nagios_cfgdir: specify an alternative directory where Nagios configurations
+                 should be managed. Default value depends of the OS of each
+                 node, but is usually something like '/etc/nagios3'.
+
+- nagios_plugin_dir: Change the directory where Nagios plugins should be
+                     deployed and pointed to by commands.
+
+- nagios_nrpe_cfgdir: Change the directory where NRPE configurations should be
+                      managed. The default value depends on the node's OS but
+                      is usually something like '/etc/nagios'.
+
+- nagios_nrpe_pid_file: Change where the PID file for the Nagios service should
+                        be written to. It's usually a good idea to keep this
+                        file where the init script will find it so that it can
+                        verify the service's status.
+
+- nagios_nrpe_dont_blame: Set this to 1 to allow arguments to be passed along
+                          with NRPE command calls. Set it to 0 to disable
+                          command arguments.
 
 - nagios_nsa_socket: This optional variable can be used to specify the path to
                      the socket file that the IRC daemon should use.
