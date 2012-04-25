@@ -6,6 +6,7 @@
 define nagios::service::http(
     $ensure = present,
     $check_domain = 'absent',
+    $port = '80',
     $check_url = '/',
     $check_code = 'OK',
     $use = 'generic-service',
@@ -27,7 +28,7 @@ define nagios::service::http(
                     nagios::service{"httprd_${name}":
                         ensure => $ensure,
                         use => $use,
-                        check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'301'",
+                        check_command => "check_http_url_regex!${real_check_domain}!${port}!${check_url}!'301'",
                     }
                 }
             }
@@ -38,7 +39,7 @@ define nagios::service::http(
             nagios::service{"http_${name}_${check_code}":
                 ensure => $ensure,
                 use => $use,
-                check_command => "check_http_url_regex!${real_check_domain}!${check_url}!'${check_code}'",
+                check_command => "check_http_url_regex!${real_check_domain}!${port}!${check_url}!'${check_code}'",
             }
         }
     }
