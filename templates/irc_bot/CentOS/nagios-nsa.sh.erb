@@ -19,8 +19,8 @@
 
 exec="/usr/local/bin/riseup-nagios-server.pl"
 prog="nsa"
-PIDFILE=<%= nagios_nsa_pidfile %>
-SOCKFILE=<%= nagios_nsa_socket %>
+PIDFILE=<%= scope.lookupvar('nagios::irc_bot::real_nsa_pidfile') %>
+SOCKFILE=<%= scope.lookupvar('nagios::irc_bot::real_nsa_socket') %>
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 

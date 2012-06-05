@@ -1,33 +1,26 @@
-class nagios::irc_bot {
-    if ( ! ($nagios_nsa_server and $nagios_nsa_nickname and $nagios_nsa_channel) ) {
-        fail("Please provide values at least for \$nagios_nsa_server, \$nagios_nsa_nickname and \$nagios_nsa_channel")
-    }
-
-    $nagios_nsa_socket = $nagios_nsa_socket ? {
-        '' => $::operatingsystem ? {
+class nagios::irc_bot(
+  $nsa_socket = hiera('nagios_nsa_socket','absent'),
+  $nsa_server = hiera('nagios_nsa_server'),
+  $nsa_port = hiera('nagios_nsa_port',6667),
+  $nsa_nickname = hiera('nagios_nsa_nickname'),
+  $nsa_password = hiera('nagios_nsa_password',''),
+  $nsa_channel = hiera('nagios_nsa_channel'),
+  $nsa_pidfile = hiera('nagios_nsa_pidfile','absent'),
+  $nsa_realname = hiera('nagios_nsa_realname','Nagios')
+) {
+    $real_nsa_socket = $nsa_socket ? {
+        'absent' => $::operatingsystem ? {
           centos => '/var/run/nagios-nsa/nsa.socket',
           default => '/var/run/nagios3/nsa.socket'
         },
-        default => $nagios_nsa_socket,
+        default => $nsa_socket,
     }
-    $nagios_nsa_pidfile = $nagios_nsa_pidfile ? {
-        '' => $::operatingsystem ? {
+    $real__nsa_pidfile = $nsa_pidfile ? {
+        'absent' => $::operatingsystem ? {
           centos => '/var/run/nagios-nsa/nsa.pid',
           default => '/var/run/nagios3/nsa.pid'
         },
-        default => $nagios_nsa_pidfile,
-    }
-    $nagios_nsa_port = $nagios_nsa_port ? {
-        '' => '6667',
-        default => $nagios_nsa_port,
-    }
-    $nagios_nsa_realname = $nagios_nsa_realname ? {
-        '' => 'Nagios',
-        default => $nagios_nsa_realname,
-    }
-
-    if (! $nagios_nsa_password) {
-        $nagios_nsa_password = ''
+        default => $nsa_pidfile,
     }
 
     file { "/usr/local/bin/riseup-nagios-client.pl":
@@ -64,12 +57,12 @@ class nagios::irc_bot {
     case $::operatingsystem {
       centos: {
         Package['libnet-irc-perl']{
-          name => 'perl-Net-IRC',  
+          name => 'perl-Net-IRC',
         }
         Service['nagios-nsa']{
           enable => true,
         }
-      }  
+      }
       debian,ubuntu: {
         exec { "nagios_nsa_init_script":
           command => "/usr/sbin/update-rc.d nagios-nsa defaults",
@@ -87,7 +80,7 @@ class nagios::irc_bot {
             command_line => '/usr/local/bin/riseup-nagios-client.pl "$HOSTNAME$ ($HOSTALIAS$) $NOTIFICATIONTYPE$ n.$HOSTATTEMPT$ $HOSTSTATETYPE$ took $HOSTEXECUTIONTIME$s $HOSTOUTPUT$ $HOSTPERFDATA$ $HOSTLATENCY$s"';
     }
 
-    if $use_shorewall {
+    if hiera('use_shorewall',false) {
       include shorewall::rules::out::irc
     }
 }

@@ -14,13 +14,13 @@ class nagios::debian inherits nagios::base {
 
     File['nagios_htpasswd', 'nagios_cgi_cfg'] { group => 'www-data' }
 
-    file { "${nagios::defaults::vars::int_nagios_cfgdir}/stylesheets":
+    file { "${nagios::defaults::vars::int_cfgdir}/stylesheets":
         ensure => directory,
         purge => false,
         recurse => true,
     }
 
-    if ($nagios_allow_external_cmd) {
+    if $nagios::allow_external_cmd {
         exec { 'nagios_external_cmd_perms_overrides':
             command => 'dpkg-statoverride --update --add nagios www-data 2710 /var/lib/nagios3/rw && dpkg-statoverride --update --add nagios nagios 751 /var/lib/nagios3',
             unless => 'dpkg-statoverride --list nagios www-data 2710 /var/lib/nagios3/rw && dpkg-statoverride --list nagios nagios 751 /var/lib/nagios3',

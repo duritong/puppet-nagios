@@ -1,20 +1,21 @@
 class nagios::apache inherits ::apache {
-    $nagios_httpd = 'apache'
-    include nagios
+    class{'nagios':
+      httpd => 'apache'
+    }
 
     case $::operatingsystem {
         'debian': {
-            file { "${nagios::defaults::vars::int_nagios_cfgdir}/apache2.conf":
+            file { "${nagios::defaults::vars::int_cfgdir}/apache2.conf":
                 ensure => present,
-                source => ["puppet:///site-nagios/configs/${fqdn}/apache2.conf",
-                           "puppet:///site-nagios/configs/apache2.conf",
+                source => ["puppet:///site_nagios/configs/${::fqdn}/apache2.conf",
+                           "puppet:///site_nagios/configs/apache2.conf",
                            "puppet:///nagios/configs/apache2.conf"],
             }
 
             apache::config::global { "nagios3.conf":
                 ensure => link,
-                target => "${nagios::defaults::vars::int_nagios_cfgdir}/apache2.conf",
-                require => File["${nagios::defaults::vars::int_nagios_cfgdir}/apache2.conf"],
+                target => "${nagios::defaults::vars::int_cfgdir}/apache2.conf",
+                require => File["${nagios::defaults::vars::int_cfgdir}/apache2.conf"],
             }
         }
     }

@@ -9,8 +9,8 @@
 # Short-Description:	Nagios Simple IRC Agent
 ### END INIT INFO
 
-PIDFILE=<%= nagios_nsa_pidfile %>
-SOCKFILE=<%= nagios_nsa_socket %>
+PIDFILE=<%= scope.lookupvar('nagios::irc_bot::real_nsa_pidfile') %>
+SOCKFILE=<%= scope.lookupvar('nagios::irc_bot::real_nsa_socket') %>
 
 . /lib/lsb/init-functions
 

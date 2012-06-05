@@ -1,15 +1,17 @@
 # manifests/target.pp
 
-class nagios::target {
+class nagios::target(
+  $parents = 'absent',
+) {
 
-    @@nagios_host { "${fqdn}":
-        address => $ipaddress,
-        alias => $hostname,
+    @@nagios_host { $::fqdn:
+        address => $::ipaddress,
+        alias => $::hostname,
         use => 'generic-host',
     }
 
-    if ($nagios_parents != '') {
-        Nagios_host["${fqdn}"] { parents => $nagios_parents }
+    if ($parents != 'absent') {
+        Nagios_host["${::fqdn}"] { parents => $parents }
     }
 
 }
