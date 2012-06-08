@@ -20,9 +20,9 @@ class nagios(
 ) {
     case $nagios::httpd {
         'absent': { }
-        'lighttpd': { include lighttpd }
-        'apache': { include apache }
-        default: { include apache }
+        'lighttpd': { include ::lighttpd }
+        'apache': { include ::apache }
+        default: { include ::apache }
     }
     case $::operatingsystem {
         'centos': {
