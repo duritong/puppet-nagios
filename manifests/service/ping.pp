@@ -1,6 +1,6 @@
 define nagios::service::ping(
     $ensure = present,
-    $ping_rate = hiera('nagios_ping_rate','!100.0,20%!500.0,60%')
+    $ping_rate = '!100.0,20%!500.0,60%'
 ){
   nagios::service{ "check_ping":
     ensure => $ensure,

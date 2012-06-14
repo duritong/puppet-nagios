@@ -4,7 +4,7 @@ class nagios::target(
   $parents = 'absent',
   $address = $::ipaddress,
   $nagios_alias = $::hostname,
-  $hostgroups = 'absent',
+  $hostgroups = 'absent'
 ){
   @@nagios_host { $::fqdn:
     address => $address,

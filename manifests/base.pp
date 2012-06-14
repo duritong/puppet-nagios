@@ -183,9 +183,4 @@ class nagios::base {
         notify => Service['nagios'],
         mode => 0755, owner => root, group => root;
     }
-
-    if hiera('use_munin',false) {
-        include nagios::munin
-    }
-
 }

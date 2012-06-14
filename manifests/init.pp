@@ -15,24 +15,29 @@
 #
 
 class nagios(
-  $httpd = hiera('nagios_httpd','apache'),
-  $allow_external_cmd = hiera('nagios_allow_external_cmd',false),
+  $httpd = 'apache',
+  $allow_external_cmd = false,
+  $manage_shorewall = false,
+  $manage_munin = false
 ) {
-    case $nagios::httpd {
-        'absent': { }
-        'lighttpd': { include ::lighttpd }
-        'apache': { include ::apache }
-        default: { include ::apache }
+  case $nagios::httpd {
+    'absent': { }
+    'lighttpd': { include ::lighttpd }
+    'apache': { include ::apache }
+    default: { include ::apache }
+  }
+  case $::operatingsystem {
+    'centos': {
+      $cfgdir = '/etc/nagios'
+      include nagios::centos
     }
-    case $::operatingsystem {
-        'centos': {
-            $cfgdir = '/etc/nagios'
-            include nagios::centos
-        }
-        'debian': {
-            $cfgdir = '/etc/nagios3'
-            include nagios::debian
-        }
-        default: { fail("No such operatingsystem: ${::operatingsystem} yet defined") }
+    'debian': {
+      $cfgdir = '/etc/nagios3'
+      include nagios::debian
     }
+    default: { fail("No such operatingsystem: ${::operatingsystem} yet defined") }
+  }
+  if $manage_munin {
+    include nagios::munin
+  }
 }
