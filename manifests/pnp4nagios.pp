@@ -20,8 +20,8 @@ class nagios::pnp4nagios {
         path => "/etc/pnp4nagios/apache.conf",
         source => [ "puppet:///modules/site-nagios/pnp4nagios/apache.conf",
     		"puppet:///modules/nagios/pnp4nagios/apache.conf" ],
-        mode   => 0644, owner => root, group => root;
-	notify => Service['apache'],
+        mode   => 0644, owner => root, group => root,
+	notify => Service['apache'];
     }
 
 
