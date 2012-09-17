@@ -1,7 +1,7 @@
 class nagios::pnp4nagios {
     include nagios::defaults::pnp4nagios
 
-    package { [php5, php5-gd, rrdcollect, rrdtool, librrdp-perl, librrds-perl ]:
+    package { pnp4nagios:
               ensure => installed }
 
 
@@ -12,14 +12,15 @@ class nagios::pnp4nagios {
     file { 'pnp4nagios-templates.cfg':
          path => "$nagios::nagios_cfgdir/conf.d/pnp4nagios-templates.cfg",
          source => [ "puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-templates.cfg",
-                     "puppet:///modules/nagios/pnp4nagios/pnp4nagios-templates.cfg"    ]
+                     "puppet:///modules/nagios/pnp4nagios/pnp4nagios-templates.cfg" ],
+         mode   => 0644, owner => root, group => root;
     }
     
     file { 'apache.conf':
         path => "/etc/pnp4nagios/apache.conf",
         source => [ "puppet:///modules/site-nagios/pnp4nagios/apache.conf",
-    		"puppet:///modules/nagios/pnp4nagios/apache.conf"    	
-    	      ],
+    		"puppet:///modules/nagios/pnp4nagios/apache.conf" ],
+        mode   => 0644, owner => root, group => root;
 	notify => Service['apache'],
     }
 
