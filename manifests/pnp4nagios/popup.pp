@@ -1,6 +1,6 @@
 class nagios::pnp4nagios::popup inherits nagios::pnp4nagios { 
     File['pnp4nagios-templates.cfg']{
-         path => "$nagios::nagios_cfgdir/conf.d/pnp4nagios-templates.cfg",
+         path => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/pnp4nagios-templates.cfg",
          source => [ "puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-popup-templates.cfg",
                      "puppet:///modules/nagios/pnp4nagios/pnp4nagios-popup-templates.cfg"    ]
     }
