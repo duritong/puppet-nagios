@@ -13,7 +13,7 @@ class nagios::pnp4nagios {
     path => "$nagios::nagios_cfgdir/conf.d/pnp4nagios-templates.cfg",
     source => [ "puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-templates.cfg",
                 "puppet:///modules/nagios/pnp4nagios/pnp4nagios-templates.cfg" ],
-    mode   => 0644, owner => root, group => root;
+    mode   => 0644, owner => root, group => root,
     notify => Service['nagios'], 
   }
   
