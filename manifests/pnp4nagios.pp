@@ -38,7 +38,7 @@ class nagios::pnp4nagios {
       ensure => running,
       enable => true,
       hasstatus => true, 
-      require => Package['npcd'],
+      require => Package['pnp4nagios'],
   }
   
 
