@@ -42,5 +42,15 @@ class nagios::pnp4nagios {
       require => Package['pnp4nagios'],
   }
   
+  # modify action.gif
+  
+  file { '/usr/share/nagios3/htdocs/images/action.gif':
+    path => "/usr/share/nagios3/htdocs/images/action.gif",
+    source => [ "puppet:///modules/site-nagios/pnp4nagios/action.gif",
+            "puppet:///modules/nagios/pnp4nagios/action.gif" ],
+    mode   => 0644, owner => root, group => root,
+    notify => Service['nagios'];
+  }
+
 
 }
