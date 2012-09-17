@@ -14,6 +14,7 @@ class nagios::pnp4nagios {
     source => [ "puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-templates.cfg",
                 "puppet:///modules/nagios/pnp4nagios/pnp4nagios-templates.cfg" ],
     mode   => 0644, owner => root, group => root;
+    notify => Service['nagios'], 
   }
   
   file { 'apache.conf':
