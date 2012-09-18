@@ -22,7 +22,8 @@ class nagios::pnp4nagios {
     source => [ "puppet:///modules/site-nagios/pnp4nagios/apache.conf",
             "puppet:///modules/nagios/pnp4nagios/apache.conf" ],
     mode   => 0644, owner => root, group => root,
-    notify => Service['apache'];
+    notify => Service['apache'],
+    require => Package['pnp4nagios'],
   }
 
   # run npcd as daemon
