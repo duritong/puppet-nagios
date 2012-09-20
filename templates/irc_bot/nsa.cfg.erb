@@ -6,9 +6,10 @@
         'password'   => '<%= nagios_nsa_password %>',
 	# this needs libio-socket-ssl-perl
 	# doesn't actually works because Net::IRC is braindead and tries to use IO::Socket::SSL->read/write instead of the builtin print, see http://search.cpan.org/dist/IO-Socket-SSL/SSL.pm
-	#'SSL'       => 0,
-        'channel'    => '<%= nagios_nsa_channel %>',
-        'pidfile'    => '<%= nagios_nsa_pidfile %>', # set to undef to disable
-        'realname'   => "<%= nagios_nsa_realname %>",
-        'usenotices' => "<%= nagios_nsa_usenotices %>",
+	#'SSL'        => 0,
+        'channel'     => '<%= nagios_nsa_channel %>',
+        'pidfile'     => '<%= nagios_nsa_pidfile %>', # set to undef to disable
+        'realname'    => "<%= nagios_nsa_realname %>",
+        'usenotices'  => "<%= nagios_nsa_usenotices %>",
+        'commandfile' => '/var/lib/nagios3/rw/nagios.cmd',
 );
