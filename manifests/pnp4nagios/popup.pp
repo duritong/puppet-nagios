@@ -1,11 +1,7 @@
 class nagios::pnp4nagios::popup inherits nagios::pnp4nagios { 
-  notify {"${nagios::defaults::vars::int_nagios_cfgdir}":}
   File['pnp4nagios-templates.cfg']{
-    path => "${nagios::defaults::vars::int_nagios_cfgdir}/conf.d/pnp4nagios-templates.cfg",
     source => [ "puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-popup-templates.cfg",
                "puppet:///modules/nagios/pnp4nagios/pnp4nagios-popup-templates.cfg" ],
-    mode   => 0644, owner => root, group => root,
-    notify => Service['nagios'],
   }
 
   file { "/usr/share/nagios3/htdocs/ssi":
