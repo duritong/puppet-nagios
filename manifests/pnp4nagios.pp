@@ -10,7 +10,7 @@ class nagios::pnp4nagios {
   # so we need to copy a file here.
 
   file { 'pnp4nagios-templates.cfg':
-    path => "{nagios::defaults::vars::int_cfgdir}/conf.d/pnp4nagios-templates.cfg",
+    path => "${nagios::defaults::vars::int_cfgdir}/conf.d/pnp4nagios-templates.cfg",
     source => [ "puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-templates.cfg",
                 "puppet:///modules/nagios/pnp4nagios/pnp4nagios-templates.cfg" ],
     mode   => 0644, owner => root, group => root,
