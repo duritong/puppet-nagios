@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$nag_stats_binary" ]; then
+    nag_stats_binary=/usr/sbin/nagios3stats
+fi
+
 NAME=$(basename $0)
 
 TYPE=${NAME##nagios_perf_}
@@ -30,5 +34,5 @@ if [ "$1" = "config" ]; then
 	exit 0
 fi
 
-echo "act_lat_$TYPE_ABBR.value " $(/usr/local/sbin/nagiostats --mrtg --data AVGACT${TYPE_ABBR}LAT)
-echo "act_ext_$TYPE_ABBR.value " $(/usr/local/sbin/nagiostats --mrtg --data AVGACT${TYPE_ABBR}EXT)
+echo "act_lat_$TYPE_ABBR.value " $($nag_stats_binary --mrtg --data AVGACT${TYPE_ABBR}LAT)
+echo "act_ext_$TYPE_ABBR.value " $($nag_stats_binary --mrtg --data AVGACT${TYPE_ABBR}EXT)
