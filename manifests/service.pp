@@ -1,7 +1,7 @@
 define nagios::service (
   $ensure = present,
   $host_name = $::fqdn,
-  $check_command,
+  $check_command = 'absent',
   $check_period = '',
   $normal_check_interval = '',
   $retry_check_interval = '',
