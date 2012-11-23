@@ -1,6 +1,7 @@
 define nagios::service::dns(
-  $comment = $name,
-  $check_domain  = $name,
+  $host_name      = $::fqdn,
+  $comment        = $name,
+  $check_domain   = $name,
   $ip
 ){
   if $name != $comment {
@@ -12,7 +13,7 @@ define nagios::service::dns(
   nagios::service{
     $check_name:
       check_command       => "check_dns2!${check_domain}!${ip}",
-      host_name           => $::fqdn,
-      service_description => "check if ${::fqdn} is resolving ${check_domain}";
+      host_name           => $host_name,
+      service_description => "check if ${::host_name} is resolving ${check_domain}";
   }
 }
