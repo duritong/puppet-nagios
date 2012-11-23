@@ -3,7 +3,7 @@ define nagios::service::dns_host(
   $parent,
   $ip
 ){
-  nagios_host{$name:
+  @@nagios_host{$name:
     address => $ip,
     alias => $host_alias,
     use => 'generic-host',
