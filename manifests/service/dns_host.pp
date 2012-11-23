@@ -1,4 +1,5 @@
 define nagios::service::dns_host(
+  $check_domain,
   $host_alias,
   $parent,
   $ip
@@ -10,10 +11,10 @@ define nagios::service::dns_host(
     parents => $parent,
   }
 
-  nagios::service::dns{
+  nagios::service::dns{$name:
     $host_name    => $name,
     $comment      => 'public_ns',
-    $check_domain => 'glei.ch',
+    $check_domain => $check_domain,
     $ip           => $ip,
   }
 }
