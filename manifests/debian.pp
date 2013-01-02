@@ -14,6 +14,13 @@ class nagios::debian inherits nagios::base {
 
     File['nagios_htpasswd', 'nagios_cgi_cfg'] { group => 'www-data' }
 
+    file { 'nagios_commands_cfg':
+            path   => "${nagios::defaults::vars::int_cfgdir}/commands.cfg",
+            ensure => present,
+            notify => Service['nagios'],
+            mode   => 0644, owner => root, group => root;
+    }
+
     file { "${nagios::defaults::vars::int_cfgdir}/stylesheets":
         ensure => directory,
         purge => false,
