@@ -11,5 +11,4 @@ class nagios::defaults::templates {
     notify => Service['nagios'],
     mode => 0644, owner => root, group => root;
   }
-
 }

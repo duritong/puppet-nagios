@@ -10,4 +10,6 @@
         'channel'  => '<%= scope.lookupvar('nagios::irc_bot::nsa_channel') %>',
         'pidfile'  => '<%= scope.lookupvar('nagios::irc_bot::real_nsa_pidfile') %>', # set to undef to disable
         'realname' => "<%= scope.lookupvar('nagios::irc_bot::nsa_realname') %>",
+        'usenotices'  => "<%= scope.lookupvar('nagios::irc_bot::nsa_usenotices') %>",
+        'commandfile'  => "<%= scope.lookupvar('nagios::irc_bot::real_nsa_commandfile') %>",
 );

@@ -14,6 +14,7 @@
 # the Free Software Foundation.
 #
 
+# manage nagios
 class nagios(
   $httpd = 'apache',
   $allow_external_cmd = false,
