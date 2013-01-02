@@ -6,6 +6,7 @@ class nagios::nsca::server {
     ensure     => running,
     hasstatus  => false,
     hasrestart => true,
+    require => Package['nsca'],
   }
 
   file { '/etc/nsca.cfg':
