@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 class nagios::irc_bot(
   $nsa_socket = 'absent',
   $nsa_server,
