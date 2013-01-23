@@ -2,14 +2,17 @@ class nagios::irc_bot::base {
   file {
     '/usr/local/bin/riseup-nagios-client.pl':
       source => 'puppet:///modules/nagios/irc_bot/riseup-nagios-client.pl',
-      owner => root, group => root, mode => 0755;
+      owner => root, group => 0, mode => '0755';
+
     '/usr/local/bin/riseup-nagios-server.pl':
       source => 'puppet:///modules/nagios/irc_bot/riseup-nagios-server.pl',
-      owner => root, group => root, mode => 0755;
+      owner => root, group => 0, mode => '0755';
+
     '/etc/init.d/nagios-nsa':
       content => template("nagios/irc_bot/${::operatingsystem}/nagios-nsa.sh.erb"),
       require => File['/usr/local/bin/riseup-nagios-server.pl'],
-      owner => root, group => root, mode => 0755;
+      owner => root, group => 0, mode => '0755';
+
     '/etc/nagios_nsa.cfg':
       ensure => present,
       content => template('nagios/irc_bot/nsa.cfg.erb'),
