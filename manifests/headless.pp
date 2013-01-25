@@ -1,4 +1,5 @@
 class nagios::headless {
-    $nagios_httpd = 'absent'
-    include nagios
+    class { 'nagios':
+      httpd => 'absent',
+    }
 }
