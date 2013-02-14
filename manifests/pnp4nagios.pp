@@ -11,7 +11,8 @@ class nagios::pnp4nagios {
 
   file { 'pnp4nagios-templates.cfg':
     path   => "${nagios::defaults::vars::int_cfgdir}/conf.d/pnp4nagios-templates.cfg",
-    source => [ 'puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-templates.cfg',
+    source => [ 'puppet:///modules/site_nagios/pnp4nagios/pnp4nagios-templates.cfg',
+                'puppet:///modules/site-nagios/pnp4nagios/pnp4nagios-templates.cfg',
                 'puppet:///modules/nagios/pnp4nagios/pnp4nagios-templates.cfg' ],
     mode   => '0644',
     owner  => root,
@@ -21,7 +22,8 @@ class nagios::pnp4nagios {
 
   file { 'apache.conf':
     path    => '/etc/pnp4nagios/apache.conf',
-    source  => [ 'puppet:///modules/site-nagios/pnp4nagios/apache.conf',
+    source  => [ 'puppet:///modules/site_nagios/pnp4nagios/apache.conf',
+                 'puppet:///modules/site-nagios/pnp4nagios/apache.conf',
                  'puppet:///modules/nagios/pnp4nagios/apache.conf' ],
     mode    => '0644',
     owner   => root,
@@ -34,7 +36,8 @@ class nagios::pnp4nagios {
 
   file { '/etc/default/npcd':
     path   => '/etc/default/npcd',
-    source => [ 'puppet:///modules/site-nagios/pnp4nagios/npcd',
+    source => [ 'puppet:///modules/site_nagios/pnp4nagios/npcd',
+                'puppet:///modules/site-nagios/pnp4nagios/npcd',
                 'puppet:///modules/nagios/pnp4nagios/npcd' ],
     mode   => '0644',
     owner  => root,
@@ -53,7 +56,8 @@ class nagios::pnp4nagios {
 
   file { '/usr/share/nagios3/htdocs/images/action.gif':
     path   => '/usr/share/nagios3/htdocs/images/action.gif',
-    source => [ 'puppet:///modules/site-nagios/pnp4nagios/action.gif',
+    source => [ 'puppet:///modules/site_nagios/pnp4nagios/action.gif',
+                'puppet:///modules/site-nagios/pnp4nagios/action.gif',
                 'puppet:///modules/nagios/pnp4nagios/action.gif' ],
     mode   => '0644',
     owner  => root,
