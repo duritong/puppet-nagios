@@ -12,6 +12,7 @@ class nagios::defaults::pnp4nagios {
     # http://docs.pnp4nagios.org/de/pnp-0.6/webfe
 
     # this doesn't work, see manifests/pnp4nagios.pp
+
     #nagios_host { 'host-pnp':
     #    action_url => '/pnp4nagios/index.php/graph?host=$HOSTNAME$&srv=_HOST_',
     #    register => 0,
