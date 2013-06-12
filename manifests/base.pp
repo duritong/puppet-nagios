@@ -180,6 +180,7 @@ class nagios::base {
         ensure => directory,
         recurse => true,
         purge => true,
+        force => true,
         notify => Service['nagios'],
         mode => 0755, owner => root, group => root;
     }
