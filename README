@@ -193,6 +193,11 @@ For the irc_bot class:
                   'notice' if you would prefer them to be sent as IRC
                   NOTICE messages.
 
+PNP4Nagios integration
+======================
+
+For PNP4Nagios integration information, please see README.pnp4nagios
+
 Examples
 ========
 
