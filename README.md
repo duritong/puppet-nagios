@@ -22,7 +22,7 @@ Monitor
 -------
 
 On one node the `nagios` class has to be included. By default this installs
-apache using the "apache" module. To use lighttpd instead, `include "nagios::lighttpd"`,
+apache using the `apache` module. To use `lighttpd` instead, `include "nagios::lighttpd"`,
 or, if the web server is not to be managed by puppet, `include "nagios::headless"`.
 
 
@@ -102,7 +102,7 @@ the address part of `nagios::target`, this has been renamed to
 
   - previous versions of this module used `$::fqdn` for the `nagios::target`
 address, now it is using `$::ipaddress`. If you need `$::fqdn`, use
-`nagios::target::fqdn` instead of nagios::target
+`nagios::target::fqdn` instead of `nagios::target`
 
   - previous versions of `nagios_host` used the parameter named `ip`, that
 has been changed to `address`
@@ -156,10 +156,10 @@ Variables
 
 Options to change the behavior of the nagios class:
 
-- allow_external_cmd: Set to true, if you'd like to ensure that your http
+- `allow_external_cmd`: Set to true, if you'd like to ensure that your http
                       daemon can write to the external command file. You 
-                      may also need to flip "check_external_commands" in
-                      "nagios.cfg" to enable this functionality.
+                      may also need to flip `check_external_commands` in
+                      `nagios.cfg` to enable this functionality.
 
 For the irc_bot class:
 
@@ -202,57 +202,57 @@ Examples
 
 Usage example:
 
-node nagios {
+    node nagios {
 
-    include nagios::apache
-    include nagios::defaults
+	include nagios::apache
+	include nagios::defaults
 
-	# Declare another nagios command
-	nagios::command { http_port: command_line
-=> `/usr/lib/nagios/plugins/check_http -p $ARG1$ -H $HOSTADDRESS$ -I $HOSTADDRESS$`
+	    # Declare another nagios command
+	    nagios::command { http_port: command_line
+		=> /usr/lib/nagios/plugins/check_http -p $ARG1$ -H $HOSTADDRESS$ -I $HOSTADDRESS$
 
-	# Declare unmanaged hosts
-	nagios_host {
-        	'router01.mydomain.com':
-                	alias => 'router01',
-                    notes => 'MyDomain Gateway',
-                    address => "10.0.0.1",
-                    use => 'generic-host';
-        	"router02.mydomain.com":
-                    alias => 'router02',
-                	address => '192.168.0.1',
-                	parents => 'router01',
-                    use => 'generic-host';
-	}
+	    # Declare unmanaged hosts
+	    nagios_host {
+		    'router01.mydomain.com':
+			    alias => 'router01',
+			notes => 'MyDomain Gateway',
+			address => "10.0.0.1",
+			use => 'generic-host';
+		    "router02.mydomain.com":
+			alias => 'router02',
+			    address => '192.168.0.1',
+			    parents => 'router01',
+			use => 'generic-host';
+	    }
 
-}
+     }
 
 
-node target {
+      node target {
 
-	# Monitor this host
-	class{'nagios::target':
-	 parents = 'router01'
-	}
+	  # Monitor this host
+	  class{'nagios::target':
+	    parents = 'router01'
+	  }
 
-	# monitor a service
-	$apache2_port = 8080
-	include apache2
+	  # monitor a service
+	  $apache2_port = 8080
+	  include apache2
 
-	# This actually does this somewhere:
-	#nagios::service { "http_${apache2_port}":
-	#       check_command => "http_port!${apache2_port}"
-	#}
+	  # This actually does this somewhere:
+	  #nagios::service { "http_${apache2_port}":
+	  #       check_command => "http_port!${apache2_port}"
+	  #}
 
-}
+      }
 
 TODO
 ====
 
-- Provide a default http vhost
-- Add facility to deploy nagios plugins
-- Add more useful commands and services
-- When Puppet will support them, supply nagios templates using native types
+  - Provide a default http vhost
+  - Add facility to deploy nagios plugins
+  - Add more useful commands and services
+  - When Puppet will support them, supply nagios templates using native types
 
 
 License
