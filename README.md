@@ -21,35 +21,34 @@ You need to be running verison 0.25 or later of puppet.
 Monitor
 -------
 
-On one node the "nagios" class has to be included. By default this installs
-apache using the "apache" module. To use lighttpd instead, include
-"nagios::lighttpd", or, if the web server is not to be managed by puppet,
-include "nagios::headless".
+On one node the `nagios` class has to be included. By default this installs
+apache using the "apache" module. To use lighttpd instead, `include "nagios::lighttpd"`,
+or, if the web server is not to be managed by puppet, `include "nagios::headless"`.
 
 
 Hosts
 -----
 
-On a node which shall be monitored with nagios, include the "nagios::target".
-This just creates a host declaration for this host's "$::ipaddress" fact. If
-the $::ipaddress of your target is not the one you wish to modify, you can use
-"nagios::target::fqdn" instead, which will use the $::fqdn fact of the host instead.
+On a node which shall be monitored with nagios, `include the "nagios::target"`.
+This just creates a host declaration for this host's `$::ipaddress` fact. If
+the `$::ipaddress` of your target is not the one you wish to modify, you can use
+`nagios::target::fqdn` instead, which will use the `$::fqdn` fact of the host instead.
 
 Pass the $parents variable to the target class for enabling the reachability
 features of nagios. If a node needs more customisation, use the
-native "@@nagios_host" type directly (the double-ampersand declares the object
+native `@@nagios_host` type directly (the double-ampersand declares the object
 as an exported resource).
 
-To monitor hosts not managed by puppet, add "nagios_host" objects to the
-monitoring node. The required parameters are "alias", "address" and "use". If
-you don't specify a proper nagios template with the "use" parameter, some extra
+To monitor hosts not managed by puppet, add `nagios_host` objects to the
+monitoring node. The required parameters are `alias`, `address` and `use`. If
+you don't specify a proper nagios template with the `use` parameter, some extra
 parameters are needed. You may look up the nagios documentation for this.
 
 
 Services
 --------
 
-Services can be monitored by using the "nagios::service" component.
+Services can be monitored by using the `nagios::service` component.
 
 The simplest form is:
 
@@ -62,14 +61,14 @@ a service, thereby being automatically applied together with all instances of
 the service.
 
 Obviously, the check command must either be defined using nagios_command objects
-(some are supplied in nagios::defaults::commands) or in the nagios configuration
+(some are supplied in `nagios::defaults::commands`) or in the nagios configuration
 files directly.
 
 NRPE Services 
 -------------
 
 Some Nagios services need to be checked via NRPE. The following will make the
-nagios server define a service that will check the NRPE command 'check_cpu' on
+nagios server define a service that will check the NRPE command `check_cpu` on
 the current node:
 
     nagios::service { 'CPU Usage':
@@ -92,32 +91,32 @@ and what it is going to execute:
 Upgrade Notes
 =============
 
-The nagios::target bits have been reworked, the notable changes that
+The `nagios::target` bits have been reworked, the notable changes that
 may affect an upgrade are:
 
-. previous versions had nagios::target::nat which used the $::fqdn for
-the address part of nagios::target, this has been renamed to
-nagios::target::fqdn to be more clear. if you were using
-nagios::target::nat then you will need to change those references to
-::fqdn
+  - previous versions had `nagios::target::nat` which used the `$::fqdn` for
+the address part of `nagios::target`, this has been renamed to
+`nagios::target::fqdn` to be more clear. if you were using
+`nagios::target::nat` then you will need to change those references to
+`::fqdn`
 
-. previous versions of this module used $::fqdn for the nagios::target
-address, now it is using $::ipaddress. If you need $::fqdn, use
-nagios::target::fqdn instead of nagios::target
+  - previous versions of this module used `$::fqdn` for the `nagios::target`
+address, now it is using `$::ipaddress`. If you need `$::fqdn`, use
+`nagios::target::fqdn` instead of nagios::target
 
-. previous versions of nagios_host used the parameter named 'ip', that
-has been changed to 'address'
+  - previous versions of `nagios_host` used the parameter named `ip`, that
+has been changed to `address`
 
 
 IRC bot
 =======
 
 Notifications can easily be sent to an IRC channel by using a bot. To do so,
-simply include 'nagios::irc_bot' on the nagios server and define the right
-$nagios_nsa_* variables (see the 'Variables' section below).
+simply include `nagios::irc_bot` on the nagios server and define the right
+`$nagios_nsa_*` variables (see the 'Variables' section below).
 
-You can then use the notification commands 'notify-by-irc' and
-'host-notify-by-irc' with service and host definitions to make them report
+You can then use the notification commands `notify-by-irc` and
+`host-notify-by-irc` with service and host definitions to make them report
 state changes over IRC.
 
 Caveats
@@ -130,7 +129,7 @@ Consistency/Validation/Verification
 After convergance of the configuration, the system is obviously consistent.
 That is, all defined services are monitored. The problem is though, that it is
 neither automatically valid - it is not guaranteed that all components declare a
-nagios::service - and even if the configuration is valid it definitly is
+`nagios::service` - and even if the configuration is valid it definitly is
 unverified, since that is always a judgment call for an external observer.
 
 
@@ -138,7 +137,7 @@ Removal of nagios objects
 -------------------------
 
 This module does not automatically purge nagios objects such as hosts and
-services that become absent from the manifests. One must set ensure => absent
+services that become absent from the manifests. One must set `ensure => absent`
 to guarantee the removal of nagios objects from the configuration as desired.
 
 
@@ -147,7 +146,7 @@ Templates not supported using native types
 
 Templates of hosts and services cannot yet be defined using native types. In
 this module, they are provided using a file resource by the class
-nagios::defaults::templates
+`nagios::defaults::templates`
 
 See : http://projects.reductivelabs.com/issues/1180
 
@@ -164,31 +163,31 @@ Options to change the behavior of the nagios class:
 
 For the irc_bot class:
 
-- nsa_socket: This optional variable can be used to specify the path to
+  - `nsa_socket`: This optional variable can be used to specify the path to
               the socket file that the IRC daemon should use.
 
-- nsa_server: When using the IRC bot, this defines the server address of
+  - `nsa_server`: When using the IRC bot, this defines the server address of
               the IRC network on which the bot will connect.
 
-- nsa_port: Defines the port number on the IRC server on which the bot
+  - `nsa_port`: Defines the port number on the IRC server on which the bot
             should connect. When this variable is not set, the port used
             by default is 6667.
 
-- nsa_nickname: This is the nickname that the IRC bot will take.
+  - `nsa_nickname`: This is the nickname that the IRC bot will take.
 
-- nsa_password: Some networks require a password to connect to them.
+  - `nsa_password`: Some networks require a password to connect to them.
                 This defines such a password.
 
-- nsa_channel: The name of the channel that the IRC bot will join and
+  - `nsa_channel`: The name of the channel that the IRC bot will join and
                will post notifications to.
 
-- nsa_pidfile: This optional variable can be used to define the path to
+  - `nsa_pidfile`: This optional variable can be used to define the path to
                the file that will contain the process ID of the IRC bot
                daemon.
-- nsa_realname: The IRC bot user's real name that will be displayed. By
+  - `nsa_realname`: The IRC bot user's real name that will be displayed. By
                 default, the real name is 'Nagios'.
 
-- nsa_usenotices: The IRC bot will by default "say" to the channel the
+  - `nsa_usenotices`: The IRC bot will by default "say" to the channel the
                   nagios message, but you can switch this variable to
                   'notice' if you would prefer them to be sent as IRC
                   NOTICE messages.
@@ -210,8 +209,7 @@ node nagios {
 
 	# Declare another nagios command
 	nagios::command { http_port: command_line
-=> '/usr/lib/nagios/plugins/check_http -p $ARG1$ -H $HOSTADDRESS$ -I
-$HOSTADDRESS$'
+=> `/usr/lib/nagios/plugins/check_http -p $ARG1$ -H $HOSTADDRESS$ -I $HOSTADDRESS$`
 
 	# Declare unmanaged hosts
 	nagios_host {
