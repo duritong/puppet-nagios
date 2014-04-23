@@ -2,7 +2,7 @@ class nagios::ubuntu inherits nagios::base {
 
     Package['nagios'] { name => 'nagios3' }
 
-    package { [ 'nagios-plugins', 'nagios-snmp-plugins','nagios-nrpe-plugin' ]:
+    package { [ 'nagios3-cgi', 'nagios-plugins', 'nagios-snmp-plugins', 'nagios-nrpe-plugin' ]:
         ensure => 'present',
         notify => Service['nagios'],
     }
