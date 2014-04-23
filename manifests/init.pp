@@ -36,7 +36,7 @@ class nagios(
       $cfgdir = '/etc/nagios3'
       include nagios::debian
     }
-    'ubuntu': {
+    'Ubuntu': {
       $cfgdir = '/etc/nagios3'
       include nagios::ubuntu
     }
