@@ -5,6 +5,10 @@ class nagios::base {
     package { 'nagios':
         alias => 'nagios',
         ensure => present,
+        responsefile => $::operatingsystem ? {
+            'Ubuntu' => '/etc/dpkg/nagios3-cgi.debconf',
+            default  => undef,
+        }
     }
 
     service { 'nagios':
@@ -34,7 +38,11 @@ class nagios::base {
                     "puppet:///modules/nagios/configs/${::operatingsystem}/cgi.cfg",
                     "puppet:///modules/nagios/configs/cgi.cfg" ],
         mode => '0644', owner => 'root', group => 0,
-        notify => Service['apache'],
+        notify => $httpd ? {
+            'apache'   => Service['apache'],
+            'lighttpd' => Service['lighttpd'],
+            default    => undef,
+        }
     }
 
     file { 'nagios_htpasswd':
@@ -69,20 +77,20 @@ class nagios::base {
         notify => Service['nagios'],
         mode => '0750', owner => root, group => nagios;
     }
-    Nagios_command <<||>>
-    Nagios_contactgroup <<||>>
-    Nagios_contact <<||>>
-    Nagios_hostdependency <<||>>
-    Nagios_hostescalation <<||>>
-    Nagios_hostextinfo <<||>>
-    Nagios_hostgroup <<||>>
-    Nagios_host <<||>>
-    Nagios_servicedependency <<||>>
-    Nagios_serviceescalation <<||>>
-    Nagios_servicegroup <<||>>
-    Nagios_serviceextinfo <<||>>
-    Nagios_service <<||>>
-    Nagios_timeperiod <<||>>
+#    Nagios_command <<||>>
+#    Nagios_contactgroup <<||>>
+#    Nagios_contact <<||>>
+#    Nagios_hostdependency <<||>>
+#    Nagios_hostescalation <<||>>
+#    Nagios_hostextinfo <<||>>
+#    Nagios_hostgroup <<||>>
+#    Nagios_host <<||>>
+#    Nagios_servicedependency <<||>>
+#    Nagios_serviceescalation <<||>>
+#    Nagios_servicegroup <<||>>
+#    Nagios_serviceextinfo <<||>>
+#    Nagios_service <<||>>
+#    Nagios_timeperiod <<||>>
 
     Nagios_command <||> {
         target => "${nagios::defaults::vars::int_cfgdir}/conf.d/nagios_command.cfg",

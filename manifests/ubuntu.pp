@@ -1,8 +1,13 @@
 class nagios::ubuntu inherits nagios::base {
 
+    file { '/etc/dpkg/nagios3-cgi.debconf':
+        ensure  => present,
+        content => template('nagios/debconf/nagios3-cgi.debconf.erb')
+    }
+
     Package['nagios'] { name => 'nagios3' }
 
-    package { [ 'nagios3-cgi', 'nagios-plugins', 'nagios-snmp-plugins', 'nagios-nrpe-plugin' ]:
+    package { [ 'nagios-plugins', 'nagios-snmp-plugins', 'nagios-nrpe-plugin' ]:
         ensure => 'present',
         notify => Service['nagios'],
     }
