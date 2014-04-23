@@ -36,6 +36,10 @@ class nagios(
       $cfgdir = '/etc/nagios3'
       include nagios::debian
     }
+    'ubuntu': {
+      $cfgdir = '/etc/nagios3'
+      include nagios::ubuntu
+    }
     default: { fail("No such operatingsystem: ${::operatingsystem} yet defined") }
   }
   if $manage_munin {
