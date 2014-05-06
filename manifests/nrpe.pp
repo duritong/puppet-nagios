@@ -1,4 +1,6 @@
-class nagios::nrpe {
+class nagios::nrpe(
+$nagios_nrpe_allowed_hosts = '',
+) {
 
     case $operatingsystem {
         'FreeBSD': {
@@ -13,7 +15,7 @@ class nagios::nrpe {
             if $nagios_plugin_dir == '' { $nagios_plugin_dir = '/usr/lib/nagios/plugins' }
 
             case $kernel {
-                linux: { include nagios::nrpe::linux }
+                Linux: { include nagios::nrpe::linux }
                 default: { include nagios::nrpe::base }
             }
         }

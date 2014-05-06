@@ -7,7 +7,7 @@ define nagios::nrpe::command (
         fail ( "Either one of 'command_line' or 'source' must be given to nagios::nrpe::command." )
     }
 
-    if $nagios_nrpe_cfg_dir == '' {
+    if $nagios_nrpe_cfgdir == '' {
         $nagios_nrpe_cfgdir = $nagios::nrpe::base::nagios_nrpe_cfgdir
     }
 
