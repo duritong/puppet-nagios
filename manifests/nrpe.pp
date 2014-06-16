@@ -1,7 +1,9 @@
 class nagios::nrpe(
-$nagios_nrpe_allowed_hosts = '',
+  $nagios_nrpe_allowed_hosts = '',
+  $nagios_manage_nrpe = false,
 ) {
 
+  if $nagios_manage_nrpe {
     case $operatingsystem {
         'FreeBSD': {
             if $nagios_nrpe_cfgdir == '' { $nagios_nrpe_cfgdir = '/usr/local/etc' }
@@ -20,5 +22,7 @@ $nagios_nrpe_allowed_hosts = '',
             }
         }
     }
+
+  }
 
 }
