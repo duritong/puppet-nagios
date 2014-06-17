@@ -3,7 +3,7 @@ class nagios::nrpe(
   $nagios_manage_nrpe = false,
 ) {
 
-  if $nagios_manage_nrpe {
+  if $nagios::nagios_manage_nrpe {
     case $operatingsystem {
         'FreeBSD': {
             if $nagios_nrpe_cfgdir == '' or ! $nagios_nrpe_cfgdir { $nagios_nrpe_cfgdir = '/usr/local/etc' }
