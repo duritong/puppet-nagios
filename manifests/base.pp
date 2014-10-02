@@ -21,11 +21,13 @@ class nagios::base {
     # this file should contain all the nagios_puppet-paths:
     file { 'nagios_main_cfg':
             path => "${nagios::defaults::vars::int_cfgdir}/nagios.cfg",
-            source => [ "puppet:///modules/site_nagios/configs/${::fqdn}/nagios.cfg",
-                        "puppet:///modules/site_nagios/configs/${::operatingsystem}/nagios.cfg",
-                        "puppet:///modules/site_nagios/configs/nagios.cfg",
-                        "puppet:///modules/nagios/configs/${::operatingsystem}/nagios.cfg",
-                        "puppet:///modules/nagios/configs/nagios.cfg" ],
+            # SUNET manage nagios.cfg elsewhere, stop puppet-nagios from overwriting it all the time.
+            #
+            #source => [ "puppet:///modules/site_nagios/configs/${::fqdn}/nagios.cfg",
+            #            "puppet:///modules/site_nagios/configs/${::operatingsystem}/nagios.cfg",
+            #            "puppet:///modules/site_nagios/configs/nagios.cfg",
+            #            "puppet:///modules/nagios/configs/${::operatingsystem}/nagios.cfg",
+            #            "puppet:///modules/nagios/configs/nagios.cfg" ],
             notify => Service['nagios'],
             mode => 0644, owner => root, group => root;
     }
