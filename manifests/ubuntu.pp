@@ -1,5 +1,7 @@
 class nagios::ubuntu inherits nagios::base {
 
+    Exec { path =>  ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin', ] }
+
     file { '/etc/dpkg/nagios3-cgi.debconf':
         ensure  => present,
         content => template('nagios/debconf/nagios3-cgi.debconf.erb')
