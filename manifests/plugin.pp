@@ -2,11 +2,16 @@ define nagios::plugin(
     $source = 'absent',
     $ensure = present
 ){
+  if ($::operatingsystem == "Ubuntu") {
+      $libpath = "/usr/lib/nagios/plugins"
+  } else {
+     $libpath = $::hardwaremodel ? {
+         'x86_64' => "/usr/lib64/nagios/plugins",
+         default => "/usr/lib/nagios/plugins",
+     }
+  }
   file{$name:
-    path => $::hardwaremodel ? {
-      'x86_64' => "/usr/lib64/nagios/plugins/${name}",
-      default => "/usr/lib/nagios/plugins/${name}",
-    },
+    path => "${libpath}/${name}",
     ensure => $ensure,
     source => $source ? {
       'absent' => "puppet:///modules/nagios/plugins/${name}",

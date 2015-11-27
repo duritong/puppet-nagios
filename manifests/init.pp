@@ -19,7 +19,8 @@ class nagios(
   $httpd = 'apache',
   $allow_external_cmd = false,
   $manage_shorewall = false,
-  $manage_munin = false
+  $manage_munin = false,
+  $manage_nrpe = true,
 ) {
   case $nagios::httpd {
     'absent': { }
@@ -36,9 +37,17 @@ class nagios(
       $cfgdir = '/etc/nagios3'
       include nagios::debian
     }
+    'Ubuntu': {
+      $cfgdir = '/etc/nagios3'
+      include nagios::ubuntu
+    }
     default: { fail("No such operatingsystem: ${::operatingsystem} yet defined") }
   }
   if $manage_munin {
     include nagios::munin
+  }
+  if $manage_nrpe {
+    $nagios_manage_nrpe = true
+    include nagios::nrpe
   }
 }
